@@ -1,0 +1,19 @@
+[project]
+name = "berlin-weather"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Kristian Koehntopp", email = "kris-git@koehntopp.de" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "httpx>=0.28.1",
+]
+
+[project.scripts]
+berlin-weather = "berlin_weather.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9.16,<0.10.0"]
+build-backend = "uv_build"
