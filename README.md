@@ -13,3 +13,61 @@
 11. Migration and comparison with older tools
 
 # What Problem `uv` solves
+
+## Topics
+
+- Why Python projects break
+- “Works on my machine” explained
+- Dependencies, versions, conflicts
+- Why pip alone is not enough
+
+## Why first
+
+Motivation and explanation of the problem space before starting.
+We need to feel the pain first to justify the workflow `uv` solves.
+
+## Side Topics
+
+- very lighy intro of historioc tooling, `pip`, `venv`., `poetry` and `pipenv` plus `pyenv`.
+- emphasize that `uv` replaces most of these tools, not adds more tooling on top.
+
+# Python environments and isolation
+
+## Topics
+
+- Global Python vs project Python
+- What a virtual environment is
+- Why isolation matters
+- One project, one environment
+
+## Why
+
+`uv` concepts make no sense without environments.
+This section builds the mental model `uv` relies on.
+
+## Side topics
+
+`PATH`, `PYTHONPATH`, system python changes without notice,
+packaging python dependencies also makes them old.
+Multiple Python versions existing at once.
+
+# Installing and using uv
+
+## Topics
+
+- Installing uv on macOS, Linux, Windows
+- Verifying installation
+- `uv --help`
+- Philosophy of `uv` commands
+
+## Why here
+
+Get them started on a basic project.
+Quick trial, "Hello Python".
+
+## Side topics
+
+- Why `uv` is fast: Rust plus local cache.
+- Single binary concept
+
+## Example Script
