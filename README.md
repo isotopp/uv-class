@@ -108,3 +108,87 @@ Students should learn safe dependency habits early.
 
 - What dependency resolution means
 - Why pinning matters
+
+# Running code and scripts
+
+## Topics
+
+- `uv run`
+- Running Python files
+- Entry points
+- Scripts vs modules
+
+## Side topics
+
+- Reproducible execution
+- Brief mention of shebangs (if needed)
+
+# Lockfiles and reproducibility
+
+## Topics
+
+- What a lockfile is (what does `uv.lock` look like exactly, and why is that there?)
+- What is actually used when `uv sync` and `uv run` are used - `pyproject.toml` or `uv.lock` and why?
+- Sharing projects and deterministic installs
+- The `uv lock` command and upgrades.
+
+## Side topics
+
+- Why lockfiles belong in git
+
+# Project structure and hygiene
+
+## Topics
+
+- `src` layout vs flat layout
+- Keeping tests separate
+- README basics
+- Ignoring files correctly
+
+## Side topics
+
+- Minimal `.gitignore`
+- Naming conventions
+
+# Tooling integrations
+
+## Topics
+
+- Linters and formatters via `uv`
+- Testing tools
+- Running tools consistently
+
+## Why
+- 
+- Shows `uv` as a hub, not just a dependency installer.
+- Encourages automation thinking.
+
+# Side topics
+
+- `ruff` as an example
+- `pytestz basics
+
+
+# Best practices and common mistakes
+
+## Topics
+
+- Never editing lockfiles by hand
+- Not mixing pip and uv
+- One project per environment
+- Keeping Python versions explicit
+
+## Side topics
+
+- When to delete and recreate environments
+- Reading error messages calmly
+- Asking the tool what it knows
+
+# Migration and comparison with older tools
+
+## Topics
+
+- `uv` vs `pip` + `venv`
+- `uv` vs `poetry`
+- When `uv` is enough
+- When something else might be needed
