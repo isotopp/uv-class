@@ -71,3 +71,40 @@ Quick trial, "Hello Python".
 - Single binary concept
 
 ## Example Script
+
+https://github.com/isotopp/uv-class/tree/main/berlin-weather
+
+# Creating a project
+
+## Topics
+
+- uv init
+- Project layout overview
+- `pyproject.toml` purpose
+- Naming a project
+
+## Why
+
+- With the example project, now go through things in detail
+
+# Side topics
+
+- What `pyproject.toml` replaced
+
+# Dependency Management
+
+## Topics
+
+- `uv add`
+- `uv remove`
+- Runtime vs development dependencies
+- Semantic versioning basics
+
+## Why 
+This is the core daily use of `uv`.
+Students should learn safe dependency habits early.
+
+## Side topics
+
+- What dependency resolution means
+- Why pinning matters
