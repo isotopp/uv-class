@@ -1,0 +1,96 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "Using uv to manage python projects"
+theme = "hugo-book"
+enableRobotsTXT = true
+
+# Needed for mermaid/katex shortcodes
+[markup]
+[markup.goldmark.renderer]
+unsafe = true
+
+[markup.tableOfContents]
+startLevel = 1
+
+[markup.highlight]
+style = 'base16-snazzy'
+
+[params]
+    BookTheme = "auto"
+    BookSection = "books"
+    BookToC = true
+    # (Optional, default favicon.png) Set the path to a favicon file.
+    # If the favicon is /static/favicon.png then the path would be favicon.png
+    # BookFavicon = 'favicon.png'
+    #
+    # (Optional, default none) Set the path to a logo for the book.
+    # If the logo is /static/logo.png then the path would be logo.png
+    # BookLogo = 'logo.png'
+
+    # Here for backward compatibility, not required.
+    # It's here as an example how to use it with BookLastChangeLink or BookEditLink
+    #BookRepo = 'https://github.com/alex-shpak/hugo-book/'
+
+    # (Optional, default none) Set template for commit link for the page. Requires enableGitInfo.
+    # When set enabled 'Last Modified' and a link to the commit in the footer of the page.
+    # Param is executed as template using .Site, .Page and .GitInfo as context.
+    # BookLastChangeLink = '{{ .Site.Params.BookRepo }}/commit/{{ .GitInfo.Hash }}'
+
+    # (Optional, default none) Set template for edit page link.
+    # When set enabled 'Edit this page' link in the footer of the page.
+    # Param is executed as template using .Site, .Page and .Path as context.
+    # BookEditLink = '{{ .Site.Params.BookRepo }}/edit/main/exampleSite/{{ .Path }}'
+
+    # (Optional, default 'January 2, 2006') Configure the date format used on the pages
+    # - In git information
+    # - In posts posts
+    # https://gohugo.io/functions/time/format/
+    BookDateFormat = "Jan 2, 2006"
+
+    # (Optional, default true) Enables search function with fuse.js.,
+    # Index is built on fly, therefore it might slowdown your website.
+    # Configuration for indexing can be adjusted in i18n folder per language.
+    BookSearch = true
+
+    # (Optional, default true) Enables comments template on pages
+    # By default partials/docs/comments.html includes Disqus template
+    # See https://gohugo.io/content-management/comments/#configure-disqus
+    # Can be overwritten by same param in page frontmatter
+    # BookComments = true
+
+    # /!\ This is an experimental feature, might be removed or changed at any time
+    # (Optional, experimental, default false) Enables portable links and link checks in markdown pages.
+    # Portable links meant to work with text editors and let you write markdown without {{< relref >}} shortcode
+    # Hugo Book will print warning or error if page referenced in markdown does not exists.
+    # Possible values are false | 'warning' | 'error'
+    BookPortableLinks = 'warning'
+
+    # /!\ This is an experimental feature, might be removed or changed at any time
+    # (Optional, experimental, default false)
+    # When set to 'preache' it enables a service worker that caches visited pages and resources for offline use.
+    # Possible values are false | true | 'precache'
+    BookServiceWorker = false
+
+    # /!\ This is an experimental feature, might be removed or changed at any time
+    # (Optional, experimental, default false) Enables a drop-down menu for translations only if a translation is present.
+    BookTranslatedOnly = false
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[menu]
+    [[menu.before]]
+    identifier = "posts"
+    name = "What's new?"
+    url = "/posts/"
+    weight = 1
+
+    [[menu.after]]
+    name = "Repo for this site"
+    url = 'https://github.com/isotopp/uv-class'
+    weight = 20
+
+    [[menu.after]]
+    name = 'Made with Hugo Book'
+    url = 'https://themes.gohugo.io/themes/hugo-book/'
+    weight = 99

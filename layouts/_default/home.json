@@ -1,0 +1,18 @@
+{{- $bookSection := site.Params.BookSection | default "books" -}}
+{{- $sections := slice $bookSection "blog" -}}
+{{- $pages := where site.RegularPages "Section" "in" $sections -}}
+[
+{{- $first := true -}}
+{{- range $pages }}
+  {{- if not $first }},{{ end -}}
+  {{- $first = false -}}
+  {
+    "title": {{ .Title | jsonify }},
+    "permalink": {{ .RelPermalink | jsonify }},
+    "summary": {{ .Summary | plainify | jsonify }},
+    "section": {{ .Section | jsonify }},
+    "content": {{ .Plain | jsonify }}
+  }
+{{- end }}
+]
+
