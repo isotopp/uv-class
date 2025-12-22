@@ -16,12 +16,12 @@ All methods install the same uv binary. The difference is how updates and remova
 **Shell integration** is optional but recommended. Completion improves discoverability and correctness.
 {{% /details %}}
 
-This chapter establishes uv as a system tool, not just a project tool.
-Students learn how uv is installed, updated, and integrated into their shell, and where persistent configuration lives.
-The goal is to make uv feel reliable, discoverable, and non-magical from the start.
+This chapter establishes `uv` as a system tool, not just a project tool.
+Students learn how `uv` is installed, updated, and integrated into their shell, and where persistent configuration lives.
+The goal is to make `uv` feel reliable, discoverable, and non-magical from the start.
 
 Understanding installation and configuration early avoids later confusion about PATH issues, mismatched versions,
-or “why does uv behave differently on this machine”.
+or “why does `uv` behave differently on this machine”.
 
 
 # Installing `uv`
