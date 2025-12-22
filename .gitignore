@@ -1,0 +1,15 @@
+# hugo
+public/
+resources/_gen/
+.hugo_build.lock
+
+# OS
+.DS_Store
+
+# Edit
+*.swp
+*~
+/.idea
+
+# Python
+/.venv
