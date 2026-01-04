@@ -14,14 +14,10 @@ let `uv` resolve and lock dependencies in `uv.lock`, execute inside isolated env
 
 ## Topics
 
-
   - Environments and isolation
     - Project environments  
     - Temporary isolated environments
-  - Why uv is fast
-    - Global cache
-    - Shared wheels
-    - Deterministic resolution
+
   - Cache management
   - What is cached
   - Where it lives
@@ -60,15 +56,15 @@ Every environment is built around one specific Python version, such as `3.11`, `
 The version determines language features, behavior of built-in modules, ABI compatibility, and
 which third-party wheels can be installed.
 
-`uv` can install and manage Python interpreters themselves.
+`uv` can install and manage Python interpreters themselves, or use the operating system Python interpreter.
 
 > [!CAUTION]
 > Never use the system python.
 > Always use a `--managed-python` with `uv`.
 
 Using `uv` to manage python versions avoids the use of the system-managed system-python.
-A system Python may contain modules on top of stdlib,
-which may have been installed as OS packages to enable the system Python to do system python things.
+A Python provided by the operating system may contain modules on top of stdlib,
+which may have been installed as OS packages to enable the system python to do system python things.
 This makes it specific to your OS version and update level.
 
 This Python is also managed and updated by the system,
@@ -81,7 +77,7 @@ allows you to have multiple versions (for example, for automated testing),
 and makes sure the same python version is used everywhere (for example, on your machine and in CI).
 
 > [!TIP]
-> That is the preferred way to use it.
+> Using `uv` with `--managed-python` is the preferred way to use `uv` and Python.
 
 When you request a Python version that is not present, `uv` can download and install it.
 The interpreter comes with its matching standard library.
@@ -113,8 +109,8 @@ Instead:
 - `uv run` executes commands inside the environment
 
 The environment is treated as a derived artifact, not something you curate by hand.
-It is created very quickly (usually in much less than a second),
-and is casually recreated, updated and destroyed by `uv`.
+It is also completely disposable: You do not normally notice `uv` throwing away or rebuilding your virtual environment.
+It is just there, always with exactly the tools, libraries and versions you configured. 
 
 # Intent, Resolution, Lockfile
 
@@ -133,7 +129,7 @@ dependencies = [
 ```
 
 This is declarative, and expresses our *intention*: We say what packages we need, and what versions are acceptable.
-It does not say which *exact* version is to be used.
+We do not say which *exact* version is to be used.
 
 `uv` **resolves** dependencies by looking at the totality of all declared dependencies,
 even those that are optional or separated out into other dependency groups.
@@ -142,7 +138,7 @@ It then tries to find versions that are compatible: For example, when one compon
 and another component we declared transitively depends on `httpx>=0.26.3`, `uv` will choose a version of
 `httpx>=0.28.1`, because that is compatible with all packages that want `httpx`.
 
-The outcome of the resolution is written to `uv.lock` and kep unchanged.
+The outcome of the resolution is written to `uv.lock` and kept unchanged.
 There, the exact version, file source and `sha` checksum are recorded.
 The results from the `uv.lock` are used in a sync or run.
 
@@ -151,11 +147,11 @@ The results from the `uv.lock` are used in a sync or run.
 > so that the exact same versions of packages are being used in every checkout by you, your colleages and the CI.
 
 This guarantees that all users of our project will use the exact same versions of all dependencies at all times,
-making runs identical and reproducible.
+making runs identical and reproducible, across developer machines, CI/CD environments and installations.
 
 This is also why *all* dependency groups are taken into account *all* of the time,
 even those that are not relevant for this exact install:
-We do not want the version of `httpx`
+We do **not** want the version of `httpx`
 that is being used to change depending on the `dev` dependencies being installed or not.
 
 A Python project can have many dependencies.
@@ -174,11 +170,15 @@ Traditional Python workflows accumulate state over time:
 - dependencies are installed incrementally and drift
 - tools are installed globally and differ per machine
 
-This is how “works on my machine” becomes normal.
-The result is fragility.
-Debugging focuses on environments instead of code.
+Developers end up with a "works on my machine" situation, and fragile codebases:
+Because virtual environments are not managed down to the checksum-level there may be subtle differences between different machines,
+containers or other environments.
+The development environment and the deployment environment can diverge, the process becomes fragile,
+and instead of debugging code we debug environments.
 
-`uv` addresses this by treating the project as the unit of truth, not the machine.
+`uv` prevents that by avoiding this situation structurally: each project is treated as the unit of truth,
+not the machine.
+
 It also makes the environment disposable,
 recreated on the fly and completely dependent on the `pyproject.toml` and the resolved `uv.lock` file.
 This creates freshly created,
@@ -188,19 +188,16 @@ that are upgraded to new versions in a controlled and reversible  process.
 # From `setup.py` and `requirements.txt` to `pyproject.toml`
 
 Python projects historically lack a single, authoritative definition:
-metadata in `setup.py` embeeded in executable Python code,
-dependencies in `requirements.txt`
-and dev tools in `requirements-dev.txt`,
+metadata in `setup.py` embedded in executable Python code,
+dependencies in `requirements.txt` and dev tools in `requirements-dev.txt`,
 plus a number of scripts scattered across files in undefined locations.
 
 This fragmentation makes it hard to understand what a project actually is,
 much less parse this in a reliable way.
 
-`uv` centers the project around `pyproject.toml`:
-project metadata lives in one place, 
-dependencies are declared explicitly, 
-scripts and entry points are defined once in a central place and 
-all tooling reads the same configuration.
+`uv` centers the project around `pyproject.toml`: project metadata lives in one place,
+dependencies are declared explicitly,
+scripts and entry points are defined once in a central place and  all tooling reads the same configuration.
 
 `uv init` creates a project that already fits this model, instead of requiring manual cleanup later.
 
@@ -209,10 +206,10 @@ documentation conventions (but creates an empty `README.md` as a starting point)
 application-specific project structure decisions (but creates the necessary scaffolding).
 
 Using `uv` habitually, you can't forget to activate the environment,
-won't accidentally install dependecies into the global interpreter, won't have environment drift,
+won't accidentally install dependencies into the global interpreter, won't have environment drift,
 and don't have to wait for environment recreation.
 
-For `uv`, environments are derived artifacts and not precvious state.
+For `uv`, environments are derived artifacts and not precious state.
 They are created automatically, recreated if necessary, cheap to discard and rebuilt, and not "activated".
 
 Using `uv`, projects are always isolated from each other.
@@ -222,9 +219,8 @@ Multiple versions of environments, such as "the same environment with different 
 Using dependency groups, `uv` also records tooling used, and tool versions.
 Tools are (an optionally installable) part of the environment, they are dependencies.
 
-This ensures identical tooling and tool versions across all developers (put your preferences into your group!),
-identical tooling in CI,
-reproducible results, and predictable behavior.
+This ensures identical tooling and tool versions across all developers (put your preferences into your own group!),
+identical tooling in CI, reproducible results, and predictable behavior.
 
 It collapses several categories into one:
 - running the application
@@ -260,7 +256,7 @@ Instead, it acts as a frontend, invoking these backends in a controlled, isolate
 
 # Speed and caching
 
-In `uv`, an environment is treated as disposeable, and the environment is very frequently recreated.
+In `uv`, an environment is treated as disposable, and the environment is very frequently recreated.
 This needs to be fast.
 
 `uv` uses a global cache, and wheels are cached across projects, resolved dependencies are reused,
