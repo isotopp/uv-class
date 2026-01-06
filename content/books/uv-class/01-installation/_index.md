@@ -48,14 +48,23 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 What this does:
-- Downloads a precompiled `uv` binary for your platform
+- Downloads a precompiled `uv` and `uvx` binary for your platform
 - Installs it without privileges into a user-local directory
+  - On MacOS and Linux, it goes into `$HOME/.local/bin`.
 - Updates your shell configuration so `uv` is on your `PATH`
+  - On MacOS and Linux, using `bash`, you end up with
+    ```bash
+       # uv
+       export PATH="$HOME/.local/bin:$PATH"
+    ```
+    at the end of `$HOME/.bash_profile`.
 
-After installation, restart your shell or reload your profile, then verify:
+After installation, restart your shell (or in `bash`, run `hash -r`) or reload your profile, then verify:
 
 ```bash
-uv --version
+which uv
+uv --version # or 
+uv self version
 ```
 
 This method does not require administrator privileges and does not modify system Python installations,
