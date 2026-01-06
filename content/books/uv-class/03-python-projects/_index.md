@@ -9,7 +9,6 @@ description: |
 
 ---
 
-
 {{% details title="**Summary**" open=true %}}
 A walkthrough of simple `uv` usage with a primitive project to show what things look like
 during project creation, inside the dev project, and during build, install and version
