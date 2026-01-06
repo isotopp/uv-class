@@ -23,7 +23,7 @@ and how to package and install it.
 
 # Create a project
 
-Out project is called `helloext`.
+Our project is called `helloext`.
 It will use Python 3.12, and we will be using `--managed-python`.
 We are using the usual `--package` structure, because what we want to write is a package, just written in C.
 
@@ -107,7 +107,7 @@ The `hellop()` uses `capsys` to capture system output, and then can do the same 
 
 ## Writing the Python part of the extension
 
-Out module, `src/helloext` is a module, because the directory contains a file named `__init__.py`.
+Our module, `src/helloext` is a module, because the directory contains a file named `__init__.py`.
 This file imports what is necessary from other submodules, and collects the symbols we want to export with `helloext`,
 in the `__all__` list.
 
@@ -126,10 +126,12 @@ The module `._hello` is the C code module in the form of a `_hello.so` file in t
 ## The C code for `helloext`
 
 We are not going into the details of how to write Python extensions in C in this class.
-But if you ever saw the structure of PHP, lua or other wrappers, this will look familiar to you:
+But if you ever saw the structure of an extension in PHP, lua or other languages that integrate C modules,
+this will look familiar to you:
 
 ```c
 // cat src/helloext/_hello.c
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
@@ -175,7 +177,7 @@ PyMODINIT_FUNC PyInit__hello(void) {
 
 Read bottom to top: A module initializer creates a new module, and points to a module definition, `hellomodule`.
 The module definition contains, among other metadata, an array of functions, `HelloMethods`.
-This NULL terinated array contains structures that define the functions, and the way they get parameters.
+This NULL terminated array contains structures that define the functions, and the way they get parameters.
 
 Each function reads Python parameters and converts them into something C can use.
 We use the Type "s", which is a Python "utf-8 with surrogates" string.
@@ -221,7 +223,7 @@ This is what the `install()` line does.
 
 ## Our `pyproject.toml`
 
-Out `pyproject.toml` has a few special options:
+Our `pyproject.toml` has a few special options:
 
 ```toml
 # cat pyproject.toml
@@ -261,7 +263,8 @@ We are defining a non-standard `[build-system]`, `scikit-build-core.build` (with
 
 We also define a toml table `[tool.scikit-build]` to set options:
 - `cmake.version>=3.20` sets a minimum version requirement for `cmake`.
-- `wheel.packages` tells the build system what our package build is.
+  This must match the requirement in the `CMakeLists.txt` itself.
+- `wheel.packages` tells the build system where our package to build are.
 - optionally we can set `build.verbose` to `true` to get more build debug output.
 
 The other options we should be familiar with by now.
