@@ -1,0 +1,39 @@
+.markdown blockquote.book-hint {
+  --hint-icon-size: 2.4em;
+  --hint-icon-gap: 0.5rem;
+  position: relative;
+  padding-left: calc(var(--hint-icon-size) + var(--hint-icon-gap) + 0.75rem);
+}
+
+.markdown blockquote.book-hint::before {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  top: 0.6em;
+  width: var(--hint-icon-size);
+  height: var(--hint-icon-size);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.book-hint.note::before,
+.book-hint.info::before {
+  background-image: url("/icons/hints/note-info.svg");
+}
+
+.book-hint.tip::before {
+  background-image: url("/icons/hints/tip.svg");
+}
+
+.book-hint.warning::before {
+  background-image: url("/icons/hints/warning.svg");
+}
+
+.book-hint.caution::before {
+  background-image: url("/icons/hints/caution.svg");
+}
+
+.book-hint.danger::before {
+  background-image: url("/icons/hints/danger.svg");
+}
