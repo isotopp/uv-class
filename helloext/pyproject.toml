@@ -1,0 +1,30 @@
+[project]
+name = "helloext"
+version = "0.2.0"
+description = "Example CPython C extension with uv + scikit-build-core"
+readme = "README.md"
+authors = [
+    { name = "Kristian Koehntopp", email = "kris-git@koehntopp.de" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["scikit-build-core>=0.11", ]
+build-backend = "scikit_build_core.build"
+
+[tool.uv]
+package = true
+
+[tool.scikit-build]
+cmake.version = ">=3.20"
+build.verbose = true
+wheel.packages = ["src/helloext"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
+]
+test = [
+    "pytest>=9.0.2",
+]
