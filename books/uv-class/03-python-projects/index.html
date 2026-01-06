@@ -1,0 +1,468 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="A walkthrough of simple `uv` usage with a primitive project to show what things look like
+during project creation, inside the dev project, and during build, install and version
+changes.
+"><meta name=theme-color media="(prefers-color-scheme: light)" content="#ffffff"><meta name=theme-color media="(prefers-color-scheme: dark)" content="#343a40"><meta name=color-scheme content="light dark"><meta property="og:url" content="/books/uv-class/03-python-projects/"><meta property="og:site_name" content="Using uv to manage python projects"><meta property="og:title" content="A sample project and a walkthrough"><meta property="og:description" content="A walkthrough of simple `uv` usage with a primitive project to show what things look like
+during project creation, inside the dev project, and during build, install and version
+changes."><meta property="og:locale" content="en_us"><meta property="og:type" content="website"><meta itemprop=name content="A sample project and a walkthrough"><meta itemprop=description content="A walkthrough of simple `uv` usage with a primitive project to show what things look like
+during project creation, inside the dev project, and during build, install and version
+changes."><meta itemprop=datePublished content="2026-01-04T00:00:00+00:00"><meta itemprop=dateModified content="2026-01-04T00:00:00+00:00"><meta itemprop=wordCount content="3292"><title>A sample project and a walkthrough | Using uv to manage python projects</title><link rel=icon href=/favicon.png><link rel=manifest href=/manifest.json><link rel=canonical href=/books/uv-class/03-python-projects/><link rel=stylesheet href=/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css><script defer src=/fuse.min.js></script><script defer src=/en.search.min.0126931cf490fa815c8809a2a17aa254b29a9dc8bfd2b3f92dc679ada78ac915.js></script><link rel=alternate type=application/rss+xml href=/books/uv-class/03-python-projects/index.xml title="Using uv to manage python projects"></head><body dir=ltr class="book-kind-section book-type-books"><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><div class=book-menu-content><nav><h2 class=book-brand><a class="flex align-center" href=/><span>Using uv to manage python projects</span></a></h2><div class="book-search hidden"><input id=book-search-input type=text placeholder=Search aria-label=Search maxlength=64 data-hotkeys=s/><div class="book-search-spinner hidden"></div><ul id=book-search-results></ul></div><script>document.querySelector(".book-search").classList.remove("hidden")</script><ul><li><a href=/posts/>What's new?</a></li></ul><ul><li><input type=checkbox id=section-5c7e9da1f7ea456d914790ef3a5c9d96 class=toggle checked>
+<label for=section-5c7e9da1f7ea456d914790ef3a5c9d96 class=flex><a href=/books/uv-class/>Using uv to manage python projects</a>
+<img src=/icons/chevron-right.svg class=book-icon alt=Expand></label><ul><li><a href=/books/uv-class/01-installation/>Installing and Configuring uv</a><ul></ul></li><li><a href=/books/uv-class/02-what-is-uv/>What uv is and how it works</a><ul></ul></li><li><a href=/books/uv-class/03-python-projects/ class=active>A sample project and a walkthrough</a><ul></ul></li><li><a href=/books/uv-class/04-the-uv-way/>Creating projects the uv way</a><ul></ul></li><li><a href=/books/uv-class/05-dependencies/>Dependencies, environments, and reproducibility</a><ul></ul></li><li><a href=/books/uv-class/06-running/>Running code and tools consistently</a><ul></ul></li><li><a href=/books/uv-class/07-collaboration/>Project hygiene and collaboration</a><ul></ul></li><li><a href=/books/uv-class/08-build-and-publish/>Building, packaging, and publishing</a><ul></ul></li><li><a href=/books/uv-class/09-uv-migration/>uv in context: migration and judgment</a><ul></ul></li></ul></li></ul><ul><li><a href=https://github.com/isotopp/uv-class target=_blank rel=noopener>Repo for this site</a></li><li><a href=https://themes.gohugo.io/themes/hugo-book/ target=_blank rel=noopener>Made with Hugo Book</a></li></ul></nav><script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script></div></aside><div class=book-page><header class="book-header hidden"><div class="flex align-center justify-between"><label for=menu-control><img src=/icons/menu.svg class=book-icon alt=Menu></label><h3>A sample project and a walkthrough</h3><label for=toc-control><img src=/icons/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class=hidden><nav id=TableOfContents><ul><li><a href=#create-a-project>Create a project</a><ul><li><a href=#testing-the-execution>Testing the execution</a></li><li><a href=#we-use-uv-init---package>We use <code>uv init --package</code></a></li><li><a href=#a-basic-pyprojecttoml>A basic <code>pyproject.toml</code></a></li><li><a href=#running-the-application-through-the-entrypoint-script>Running the application through the entrypoint script</a></li></ul></li><li><a href=#adding-some-code>Adding some code</a><ul><li><a href=#adding-a-dependency-with-uv-add>Adding a dependency with <code>uv add</code></a></li><li><a href=#running-the-script>Running the script</a></li><li><a href=#the-uvlock-file>The <code>uv.lock</code> file</a></li><li><a href=#check-in-the-uvlock-file>Check in the <code>uv.lock</code> file</a></li></ul></li><li><a href=#building-installing-and-versioning>Building, Installing and Versioning</a><ul><li><a href=#entrypoint>Entrypoint</a></li><li><a href=#build-system-and-build>Build system and build</a></li><li><a href=#installing>Installing</a></li><li><a href=#versioning>Versioning</a></li></ul></li><li><a href=#adding-dev-and-test-dependencies>Adding dev and test dependencies</a></li><li><a href=#what-we-get>What we get</a></li></ul></nav></aside></header><article class="markdown book-article"><details open><summary><strong>Summary</strong></summary><div class=markdown-inner><p>A walkthrough of simple <code>uv</code> usage with a primitive project to show what things look like
+during project creation, inside the dev project, and during build, install and version
+changes.</p></div></details><p>This walkthrough uses a tiny command line app as the learning vehicle.
+The goal is not the weather-app.
+Instead we use it as a vehicle to show how to set up a <code>uv</code> based project and how to run it.</p><h1 id=create-a-project>Create a project<a class=anchor href=#create-a-project>#</a></h1><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>mkdir berlin-weather
+</span></span><span style=display:flex><span><span style=color:#ff5c57>cd</span> berlin-weather
+</span></span><span style=display:flex><span>uv init --no-managed-python --python 3.10  --package</span></span></code></pre></div><p>For example:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ mkdir berlin-weather
+</span></span><span style=display:flex><span>$ <span style=color:#ff5c57>cd</span> berlin-weather
+</span></span><span style=display:flex><span>$ uv init --no-managed-python --python 3.10  --package
+</span></span><span style=display:flex><span>Initialized project <span style=color:#5af78e>`</span>berlin-weather<span style=color:#5af78e>`</span>
+</span></span><span style=display:flex><span>$ tree
+</span></span><span style=display:flex><span>.
+</span></span><span style=display:flex><span>|-- README.md
+</span></span><span style=display:flex><span>|-- pyproject.toml
+</span></span><span style=display:flex><span><span style=color:#5af78e>`</span>-- src
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>`</span>-- berlin_weather
+</span></span><span style=display:flex><span>        <span style=color:#5af78e>`</span>-- __init__.py
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff9f43>3</span> directories, <span style=color:#ff9f43>3</span> files
+</span></span><span style=display:flex><span>$ cat src/berlin_weather/__init__.py
+</span></span><span style=display:flex><span>def main<span style=color:#ff6ac1>()</span> -&gt; None:
+</span></span><span style=display:flex><span>    print<span style=color:#ff6ac1>(</span><span style=color:#5af78e>&#34;Hello from berlin-weather!&#34;</span><span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$ ls -ld .??*
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>9</span> kris  wheel  <span style=color:#ff9f43>288</span> Jan  <span style=color:#ff9f43>4</span> 17:25 .git
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ff9f43>1</span> kris  wheel  <span style=color:#ff9f43>109</span> Jan  <span style=color:#ff9f43>4</span> 17:21 .gitignore
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ff9f43>1</span> kris  wheel    <span style=color:#ff9f43>5</span> Jan  <span style=color:#ff9f43>4</span> 17:21 .python-version
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$ cat .gitignore
+</span></span><span style=display:flex><span><span style=color:#78787e># Python-generated files</span>
+</span></span><span style=display:flex><span>__pycache__/
+</span></span><span style=display:flex><span>*.py<span style=color:#ff6ac1>[</span>oc<span style=color:#ff6ac1>]</span>
+</span></span><span style=display:flex><span>build/
+</span></span><span style=display:flex><span>dist/
+</span></span><span style=display:flex><span>wheels/
+</span></span><span style=display:flex><span>*.egg-info
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#78787e># Virtual environments</span>
+</span></span><span style=display:flex><span>.venv
+</span></span><span style=display:flex><span>$ cat .python-version
+</span></span><span style=display:flex><span>3.10
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$ git status
+</span></span><span style=display:flex><span>On branch main
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>No commits yet
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Untracked files:
+</span></span><span style=display:flex><span>  <span style=color:#ff6ac1>(</span>use <span style=color:#5af78e>&#34;git add &lt;file&gt;...&#34;</span> to include in what will be committed<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span>	.gitignore
+</span></span><span style=display:flex><span>	.python-version
+</span></span><span style=display:flex><span>	README.md
+</span></span><span style=display:flex><span>	pyproject.toml
+</span></span><span style=display:flex><span>	src/
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>nothing added to commit but untracked files present <span style=color:#ff6ac1>(</span>use <span style=color:#5af78e>&#34;git add&#34;</span> to track<span style=color:#ff6ac1>)</span></span></span></code></pre></div><p>We are running the command <code>uv init</code> with the option <code>--package</code> in an empty directory.
+It creates a project named after the directory,
+autoconverting <code>-</code> in the package-name to <code>_</code> to accommodate python naming rules.</p><p>We also specified
+that we do not want <code>uv</code> to download a version of Python for us (we could also use <code>--managed-python</code> instead,
+which is usually preferable).
+And we specified a relatively old, custom version of Python, <code>3.10</code>.</p><p>Three files were created:</p><ul><li><code>README.md</code> (empty),</li><li><code>pyproject.toml</code> (basic content)</li><li>and module: <code>src/berlin_weather/__init__.py</code> with a hello-world code-fragment.</li></ul><p>The <code>uv init</code> also initialized an empty git repo for us, and a basic <code>.gitignore</code>.</p><p>The file <code>.python-version</code> describes the minimum python-version to be used.</p><h2 id=testing-the-execution>Testing the execution<a class=anchor href=#testing-the-execution>#</a></h2><p>We can run this with any allowed python version.
+Since we said <code>3.10</code>, we could run this with <code>3.10</code> or newer.
+Let&rsquo;s try <code>3.13</code> instead:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv run --no-managed-python --python 3.13 python -c <span style=color:#5af78e>&#34;from berlin_weather import main; main()&#34;</span>
+</span></span><span style=display:flex><span>Using CPython 3.13.11 interpreter at: /opt/homebrew/opt/python@3.13/bin/python3.13
+</span></span><span style=display:flex><span>Creating virtual environment at: .venv
+</span></span><span style=display:flex><span>      Built berlin-weather @ file:///private/tmp/berlin-weather
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>1</span> package in 2ms
+</span></span><span style=display:flex><span>Hello from berlin-weather!</span></span></code></pre></div><p>We observe:</p><ul><li><code>uv</code> casually created a <code>.venv</code> directory and installed all dependencies in it (one, the Python itself so far).</li><li>We ran the code from the package.</li></ul><h2 id=we-use-uv-init---package>We use <code>uv init --package</code><a class=anchor href=#we-use-uv-init---package>#</a></h2><p>We could have simply used <code>uv init</code> to create a flat structure.</p><p>We prefer <code>--package</code>:</p><ul><li>It makes the project installable and buildable from day one.</li><li>It defaults to a <code>src</code> layout, which avoids accidental imports from the working directory.</li><li>It gives us modules and the opportunity to define entry points
+that can be called from loader scripts under <code>[project.scripts]</code> and
+that will become command line binaries in the <code>.venv</code> path.</li></ul><p>So instead of &ldquo;a folder of python files&rdquo; we have a project with proper modules and dependencies.</p><p>Other <code>uv init</code> modes exist:
+Flat layout (&ldquo;folder of python files&rdquo;) and script mode (metadata in the header comments of a single python file),
+but we don&rsquo;t go there.
+Use <code>uv help init</code> for the details.</p><p>We get <code>src/berlin_weather/__init__.py</code>.
+The directory name is the module name, and module names (identifiers) in Python can&rsquo;t contain minus-signs.
+Instead the minus is converted to an underbar (<code>_</code>).
+To make the directory an importable Python module, the file <code>__init__.py</code> must exist.
+It may be empty.</p><p>In our case, it contains a callable <code>main()</code> function as a placeholder for testing.</p><h2 id=a-basic-pyprojecttoml>A basic <code>pyproject.toml</code><a class=anchor href=#a-basic-pyprojecttoml>#</a></h2><p>We also get a basic <code>pyproject.toml</code>:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#ff5c57>$</span> cat pyproject.toml
+</span></span><span style=display:flex><span>[project]
+</span></span><span style=display:flex><span>name = <span style=color:#5af78e>&#34;berlin-weather&#34;</span>
+</span></span><span style=display:flex><span>version = <span style=color:#5af78e>&#34;0.1.0&#34;</span>
+</span></span><span style=display:flex><span>description = <span style=color:#5af78e>&#34;Add your description here&#34;</span>
+</span></span><span style=display:flex><span>readme = <span style=color:#5af78e>&#34;README.md&#34;</span>
+</span></span><span style=display:flex><span>authors = [
+</span></span><span style=display:flex><span>    { name = <span style=color:#5af78e>&#34;Kristian Koehntopp&#34;</span>, email = <span style=color:#5af78e>&#34;kris-git@koehntopp.de&#34;</span> }
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>requires-python = <span style=color:#5af78e>&#34;&gt;=3.10&#34;</span>
+</span></span><span style=display:flex><span>dependencies = []
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[project.scripts]
+</span></span><span style=display:flex><span>berlin-weather = <span style=color:#5af78e>&#34;berlin_weather:main&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[build-system]
+</span></span><span style=display:flex><span>requires = [<span style=color:#5af78e>&#34;uv_build&gt;=0.9.21,&lt;0.10.0&#34;</span>]
+</span></span><span style=display:flex><span>build-backend = <span style=color:#5af78e>&#34;uv_build&#34;</span></span></span></code></pre></div><p><code>uv init</code> filled in some basic metadata, a version number, a placeholder description and a pointer to the <code>README.md</code> file.
+It lists the author metadata, finding it by reading the <code>git</code> configuration for the current user.</p><p>The list of project dependencies is empty.
+The Python version requirement is from the <code>uv init</code> commandline, where we specified <code>--python 3.10</code>.</p><p><code>uv init</code> also defined the default build-system (the built-in <code>uv</code> build system) to build packages.
+Other build backends are possible, and we can change that.
+For pure Python projects that is not necessary,
+but if we want to build something that extends CPYthon in other languages such as Rust or C, we have to.</p><p>The dummy <code>main()</code> function in our package is listed as an entrypoint, which means that a build,
+and install or an <code>uv run</code> will find a script <code>berlin-weather</code> in the path tha calls <code>main() </code>in the berlin_weather` module.</p><h2 id=running-the-application-through-the-entrypoint-script>Running the application through the entrypoint script<a class=anchor href=#running-the-application-through-the-entrypoint-script>#</a></h2><pre tabindex=0><code>$ uv run berlin-weather
+Using CPython 3.10.19
+Creating virtual environment at: .venv
+      Built berlin-weather @ file:///private/tmp/berlin-weather
+Installed 1 package in 2ms
+Hello from berlin-weather!
+
+$ uv run --python 3.14 berlin-weather
+Using CPython 3.14.2
+Removed virtual environment at: .venv
+Creating virtual environment at: .venv
+Installed 1 package in 2ms
+Hello from berlin-weather!</code></pre><p>We have been calling the application through that entrypoint script:
+<code>uv run berlin-weather</code>.</p><p>To make things more interesting we specify a Python version,
+and observe how <code>uv</code> casually recreates the <code>.venv</code> as needed.
+Our application is run twice, once with Python 3.10, the other time with 3.14.</p><h1 id=adding-some-code>Adding some code<a class=anchor href=#adding-some-code>#</a></h1><p>To turn this into a proper application with an external dependency,
+we write a small piece of code
+that loads the current weather for Berlin from BrightSky using the <code>httpx</code> module from PyPi.
+<code>httpx</code> is a successor library to <code>request</code>, and can make REST calls or other HTTP requests.</p><p>The code looks like this:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#ff6ac1>from</span> __future__ <span style=color:#ff6ac1>import</span> annotations
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>import</span> sys
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>from</span> dataclasses <span style=color:#ff6ac1>import</span> dataclass
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>from</span> datetime <span style=color:#ff6ac1>import</span> date
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>from</span> typing <span style=color:#ff6ac1>import</span> Any
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>import</span> httpx
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>BRIGHTSKY_WEATHER_URL <span style=color:#ff6ac1>=</span> <span style=color:#5af78e>&#34;https://api.brightsky.dev/weather&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff9f43>@dataclass</span>(frozen<span style=color:#ff6ac1>=</span><span style=color:#ff6ac1>True</span>)
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>class</span> <span style=color:#f3f99d>WeatherNow</span>:
+</span></span><span style=display:flex><span>    time: <span style=color:#ff5c57>str</span>
+</span></span><span style=display:flex><span>    temperature_c: <span style=color:#ff5c57>float</span> <span style=color:#ff6ac1>|</span> <span style=color:#ff6ac1>None</span>
+</span></span><span style=display:flex><span>    wind_speed_ms: <span style=color:#ff5c57>float</span> <span style=color:#ff6ac1>|</span> <span style=color:#ff6ac1>None</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>def</span> <span style=color:#57c7ff>_pick_latest_weather</span>(payload: <span style=color:#ff5c57>dict</span>[<span style=color:#ff5c57>str</span>, Any]) <span style=color:#ff6ac1>-&gt;</span> WeatherNow:
+</span></span><span style=display:flex><span>    weather <span style=color:#ff6ac1>=</span> payload<span style=color:#ff6ac1>.</span>get(<span style=color:#5af78e>&#34;weather&#34;</span>) <span style=color:#ff6ac1>or</span> []
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>if</span> <span style=color:#ff6ac1>not</span> weather:
+</span></span><span style=display:flex><span>        <span style=color:#ff6ac1>raise</span> RuntimeError(<span style=color:#5af78e>&#34;No weather data returned.&#34;</span>)
+</span></span><span style=display:flex><span>    latest <span style=color:#ff6ac1>=</span> weather[<span style=color:#ff6ac1>-</span><span style=color:#ff9f43>1</span>]
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>return</span> WeatherNow(
+</span></span><span style=display:flex><span>        time<span style=color:#ff6ac1>=</span><span style=color:#ff5c57>str</span>(latest<span style=color:#ff6ac1>.</span>get(<span style=color:#5af78e>&#34;timestamp&#34;</span>) <span style=color:#ff6ac1>or</span> <span style=color:#5af78e>&#34;&#34;</span>),
+</span></span><span style=display:flex><span>        temperature_c<span style=color:#ff6ac1>=</span>latest<span style=color:#ff6ac1>.</span>get(<span style=color:#5af78e>&#34;temperature&#34;</span>),
+</span></span><span style=display:flex><span>        wind_speed_ms<span style=color:#ff6ac1>=</span>latest<span style=color:#ff6ac1>.</span>get(<span style=color:#5af78e>&#34;wind_speed&#34;</span>),
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>def</span> <span style=color:#57c7ff>_fetch_weather</span>(lat: <span style=color:#ff5c57>float</span>, lon: <span style=color:#ff5c57>float</span>, day: date) <span style=color:#ff6ac1>-&gt;</span> WeatherNow:
+</span></span><span style=display:flex><span>    timeout <span style=color:#ff6ac1>=</span> httpx<span style=color:#ff6ac1>.</span>Timeout(<span style=color:#ff9f43>10.0</span>, connect<span style=color:#ff6ac1>=</span><span style=color:#ff9f43>5.0</span>)
+</span></span><span style=display:flex><span>    headers <span style=color:#ff6ac1>=</span> {<span style=color:#5af78e>&#34;User-Agent&#34;</span>: <span style=color:#5af78e>&#34;berlin-weather-training/1.0&#34;</span>, <span style=color:#5af78e>&#34;Accept&#34;</span>: <span style=color:#5af78e>&#34;application/json&#34;</span>}
+</span></span><span style=display:flex><span>    params <span style=color:#ff6ac1>=</span> {<span style=color:#5af78e>&#34;lat&#34;</span>: lat, <span style=color:#5af78e>&#34;lon&#34;</span>: lon, <span style=color:#5af78e>&#34;date&#34;</span>: day<span style=color:#ff6ac1>.</span>isoformat()}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>with</span> httpx<span style=color:#ff6ac1>.</span>Client(timeout<span style=color:#ff6ac1>=</span>timeout, headers<span style=color:#ff6ac1>=</span>headers, follow_redirects<span style=color:#ff6ac1>=</span><span style=color:#ff6ac1>True</span>) <span style=color:#ff6ac1>as</span> client:
+</span></span><span style=display:flex><span>        resp <span style=color:#ff6ac1>=</span> client<span style=color:#ff6ac1>.</span>get(BRIGHTSKY_WEATHER_URL, params<span style=color:#ff6ac1>=</span>params)
+</span></span><span style=display:flex><span>        resp<span style=color:#ff6ac1>.</span>raise_for_status()
+</span></span><span style=display:flex><span>        payload: <span style=color:#ff5c57>dict</span>[<span style=color:#ff5c57>str</span>, Any] <span style=color:#ff6ac1>=</span> resp<span style=color:#ff6ac1>.</span>json()
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>return</span> _pick_latest_weather(payload)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>def</span> <span style=color:#57c7ff>main</span>() <span style=color:#ff6ac1>-&gt;</span> <span style=color:#ff5c57>int</span>:
+</span></span><span style=display:flex><span>    berlin_lat <span style=color:#ff6ac1>=</span> <span style=color:#ff9f43>52.52000</span>
+</span></span><span style=display:flex><span>    berlin_lon <span style=color:#ff6ac1>=</span> <span style=color:#ff9f43>13.40500</span>
+</span></span><span style=display:flex><span>    today <span style=color:#ff6ac1>=</span> date<span style=color:#ff6ac1>.</span>today()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>try</span>:
+</span></span><span style=display:flex><span>        now <span style=color:#ff6ac1>=</span> _fetch_weather(berlin_lat, berlin_lon, today)
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>except</span> (httpx<span style=color:#ff6ac1>.</span>HTTPError, RuntimeError) <span style=color:#ff6ac1>as</span> e:
+</span></span><span style=display:flex><span>        <span style=color:#ff5c57>print</span>(<span style=color:#5af78e>f</span><span style=color:#5af78e>&#34;Error: </span><span style=color:#5af78e>{</span>e<span style=color:#5af78e>}</span><span style=color:#5af78e>&#34;</span>, file<span style=color:#ff6ac1>=</span>sys<span style=color:#ff6ac1>.</span>stderr)
+</span></span><span style=display:flex><span>        <span style=color:#ff6ac1>return</span> <span style=color:#ff9f43>2</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    t <span style=color:#ff6ac1>=</span> <span style=color:#5af78e>&#34;?&#34;</span> <span style=color:#ff6ac1>if</span> now<span style=color:#ff6ac1>.</span>temperature_c <span style=color:#ff6ac1>is</span> <span style=color:#ff6ac1>None</span> <span style=color:#ff6ac1>else</span> <span style=color:#5af78e>f</span><span style=color:#5af78e>&#34;</span><span style=color:#5af78e>{</span>now<span style=color:#ff6ac1>.</span>temperature_c<span style=color:#5af78e>:</span><span style=color:#5af78e>.1f</span><span style=color:#5af78e>}</span><span style=color:#5af78e> C&#34;</span>
+</span></span><span style=display:flex><span>    w <span style=color:#ff6ac1>=</span> <span style=color:#5af78e>&#34;?&#34;</span> <span style=color:#ff6ac1>if</span> now<span style=color:#ff6ac1>.</span>wind_speed_ms <span style=color:#ff6ac1>is</span> <span style=color:#ff6ac1>None</span> <span style=color:#ff6ac1>else</span> <span style=color:#5af78e>f</span><span style=color:#5af78e>&#34;</span><span style=color:#5af78e>{</span>now<span style=color:#ff6ac1>.</span>wind_speed_ms<span style=color:#5af78e>:</span><span style=color:#5af78e>.1f</span><span style=color:#5af78e>}</span><span style=color:#5af78e> m/s&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff5c57>print</span>(<span style=color:#5af78e>f</span><span style=color:#5af78e>&#34;Berlin. </span><span style=color:#5af78e>{</span>now<span style=color:#ff6ac1>.</span>time<span style=color:#5af78e>}</span><span style=color:#5af78e>. </span><span style=color:#5af78e>{</span>t<span style=color:#5af78e>}</span><span style=color:#5af78e>. Wind </span><span style=color:#5af78e>{</span>w<span style=color:#5af78e>}</span><span style=color:#5af78e>.&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>return</span> <span style=color:#ff9f43>0</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>if</span> <span style=color:#ff5c57>__name__</span> <span style=color:#ff6ac1>==</span> <span style=color:#5af78e>&#34;__main__&#34;</span>:
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>raise</span> SystemExit(main())</span></span></code></pre></div><p>The module calls <code>main()</code> and returns any error, if there is one.</p><p>The <code>main()</code> function defines the geocoordinates for Berlin and the current date.
+It then tries to call <code>_fetch_weather()</code> with these data.
+If that succeeds, the location, time, temperature and wind speed are being printed.</p><p><code>_fetch_weather() does a call to the </code>BRIGHTSKY_WEATHER_URL<code>with several request parameters, and a defined timeout. If there is a result, we parse it with</code>_pick_latest_weather()`.</p><p><code>_pick_latest_weather()</code> takes the last field from the result,
+which is the latest (current) weather.
+It selects the data we want into a WeatherNow() dataclass and returns this.
+This allows us to retrieve this information in an ordered and structured way.</p><h2 id=adding-a-dependency-with-uv-add>Adding a dependency with <code>uv add</code><a class=anchor href=#adding-a-dependency-with-uv-add>#</a></h2><p>The important piece of this code it that it makes use of <code>httpx</code> to make the call,
+which is not a library from stdlib.
+It is an external, installable dependency.</p><p>We declare this dependency with <code>uv add httpx</code>.
+This modifies <code>pyproject.toml</code> and then re-generates <code>uv.lock</code>.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#ff5c57>$</span> cat pyproject.toml
+</span></span><span style=display:flex><span>[project]
+</span></span><span style=display:flex><span>name = <span style=color:#5af78e>&#34;berlin-weather&#34;</span>
+</span></span><span style=display:flex><span>version = <span style=color:#5af78e>&#34;0.1.0&#34;</span>
+</span></span><span style=display:flex><span>description = <span style=color:#5af78e>&#34;Add your description here&#34;</span>
+</span></span><span style=display:flex><span>readme = <span style=color:#5af78e>&#34;README.md&#34;</span>
+</span></span><span style=display:flex><span>authors = [
+</span></span><span style=display:flex><span>    { name = <span style=color:#5af78e>&#34;Kristian Koehntopp&#34;</span>, email = <span style=color:#5af78e>&#34;kris-git@koehntopp.de&#34;</span> }
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>requires-python = <span style=color:#5af78e>&#34;&gt;=3.10&#34;</span>
+</span></span><span style=display:flex><span>dependencies = [
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>&#34;httpx&gt;=0.28.1&#34;</span>,
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[project.scripts]
+</span></span><span style=display:flex><span>berlin-weather = <span style=color:#5af78e>&#34;berlin_weather.cli:main&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[build-system]
+</span></span><span style=display:flex><span>requires = [<span style=color:#5af78e>&#34;uv_build&gt;=0.9.21,&lt;0.10.0&#34;</span>]
+</span></span><span style=display:flex><span>build-backend = <span style=color:#5af78e>&#34;uv_build&#34;</span></span></span></code></pre></div><p>The <code>dependencies</code>-array is no longer empty.
+It now contains a version spec of <code>httpx>=0.28.1</code>.
+This is the current version of <code>httpx</code> at the moment we define this dependency.</p><p>We also manually changed the entrypoint to <code>berlin_weather.cli:main</code> (the function
+<code>main()</code> in <code>src/berlin_weather/cli.py</code>).</p><h2 id=running-the-script>Running the script<a class=anchor href=#running-the-script>#</a></h2><p>We can run the script with different Python versions:</p><pre tabindex=0><code>$ uv run --python 3.14 -- berlin-weather
+Using CPython 3.14.2
+Removed virtual environment at: .venv
+Creating virtual environment at: .venv
+Installed 7 packages in 4ms
+Berlin. 2026-01-05T00:00:00+00:00. -1.3 C. Wind 13.0 m/s.
+
+$ uv run --python 3.10 -- berlin-weather
+Using CPython 3.10.19
+Removed virtual environment at: .venv
+Creating virtual environment at: .venv
+Installed 9 packages in 5ms
+Berlin. 2026-01-05T00:00:00+00:00. -1.3 C. Wind 13.0 m/s.</code></pre><p>We observe how the <code>.venv</code> is recreated with different versions of Python.
+We also observe how the number of packages installed is different.</p><h2 id=the-uvlock-file>The <code>uv.lock</code> file<a class=anchor href=#the-uvlock-file>#</a></h2><p>Whenever we change the dependencies of a script,
+when we run <code>uv.lock</code> and in a few other situations the <code>uv.lock</code> file is recreated.
+It contains the actual dependencies of our script – the ones we specified, and the transitive, implied dependencies,
+taking different Python versions into account.</p><p>The precise source files, checksums and other details are recorded.</p><p>When an <code>uv.lock</code> file exists, exactly the versions in the <code>uv.lock</code> file are being installed,
+guaranteeing the same versions of everything everywhere.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#ff5c57>$</span> head uv.lock
+</span></span><span style=display:flex><span>version = <span style=color:#ff9f43>1</span>
+</span></span><span style=display:flex><span>revision = <span style=color:#ff9f43>3</span>
+</span></span><span style=display:flex><span>requires-python = <span style=color:#5af78e>&#34;&gt;=3.10&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[[package]]
+</span></span><span style=display:flex><span>name = <span style=color:#5af78e>&#34;anyio&#34;</span>
+</span></span><span style=display:flex><span>version = <span style=color:#5af78e>&#34;4.12.0&#34;</span>
+</span></span><span style=display:flex><span>source = { registry = <span style=color:#5af78e>&#34;https://pypi.org/simple&#34;</span> }
+</span></span><span style=display:flex><span>dependencies = [
+</span></span><span style=display:flex><span>{ name = <span style=color:#5af78e>&#34;exceptiongroup&#34;</span>, marker = <span style=color:#5af78e>&#34;python_full_version &lt; &#39;3.11&#39;&#34;</span> },
+</span></span><span style=display:flex><span>{ name = <span style=color:#5af78e>&#34;idna&#34;</span> },
+</span></span><span style=display:flex><span>{ name = <span style=color:#5af78e>&#34;typing-extensions&#34;</span>, marker = <span style=color:#5af78e>&#34;python_full_version &lt; &#39;3.13&#39;&#34;</span> },
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>sdist = { url = <span style=color:#5af78e>&#34;https://files.pythonhosted.org/packages/16/ce/8a777047513153587
+</span></span></span><span style=display:flex><span><span style=color:#5af78e>e5434fd752e89334ac33e379aa3497db860eeb60377/anyio-4.12.0.tar.gz&#34;</span>, hash = <span style=color:#5af78e>&#34;sha256
+</span></span></span><span style=display:flex><span><span style=color:#5af78e>:73c693b567b0c55130c104d0b43a9baf3aa6a31fc6110116509f27bf75e21ec0&#34;</span>, size = <span style=color:#ff9f43>22826</span>
+</span></span><span style=display:flex><span><span style=color:#ff9f43>6</span>, upload-time = <span style=color:#5af78e>&#34;2025-11-28T23:37:38.911Z&#34;</span> }
+</span></span><span style=display:flex><span>wheels = [
+</span></span><span style=display:flex><span>{ url = <span style=color:#5af78e>&#34;https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e
+</span></span></span><span style=display:flex><span><span style=color:#5af78e>0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl&#34;</span>, hash = <span style=color:#5af78e>&#34;
+</span></span></span><span style=display:flex><span><span style=color:#5af78e>sha256:dad2376a628f98eeca4881fc56cd06affd18f659b17a747d3ff0307ced94b1bb&#34;</span>, size =
+</span></span><span style=display:flex><span><span style=color:#ff9f43>113362</span>, upload-time = <span style=color:#5af78e>&#34;2025-11-28T23:36:57.897Z&#34;</span> },
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[[package]]
+</span></span><span style=display:flex><span>name = <span style=color:#5af78e>&#34;berlin-weather&#34;</span>
+</span></span><span style=display:flex><span>...</span></span></code></pre></div><p>The <code>uv.lock</code> file has a header that declares the <code>uv.lock</code> file version,
+and the Python version requirement.</p><p>It then has a number of <code>[[package]]</code> entries (in toml, a <code>[]</code> is a table, an object,
+and <code>[[]]</code> means to append to the table, here the table <code>package</code>).</p><p>We see the entry for the package <code>anyio</code>, which is required by <code>httpx</code>,
+and the beginnning of the entry for the <code>berlin-weather</code> module itself.</p><p>We record the exact <code>version</code>, the <code>source</code> registry where we found the package,
+the list of <code>dependencies</code> added by this module, the <code>sdist</code> url and checksum and other metadata,
+and the <code>wheels</code> metadata, again with download url and checksum.
+This nails down the version installed, and with the checksum ensures that it is really the exact same file.</p><p>The <code>anyio</code> dependency is interesting, because it has transitive dependencies, and two of them are conditional:
+If we are below 3.11, we also need <code>exceptiongroup</code>, and if we are below 3.13, we need <code>typing-extensions</code> as well.
+This explains the different number of packages, depending on Python version.</p><h2 id=check-in-the-uvlock-file>Check in the <code>uv.lock</code> file<a class=anchor href=#check-in-the-uvlock-file>#</a></h2><p>In order to ensure all environments are using the exact same packages, we put the <code>uv.lock</code> file under source control.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ git add uv.lock
+</span></span><span style=display:flex><span>kris$ git commit -m <span style=color:#5af78e>&#39;dependency update&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>[</span>main <span style=color:#ff6ac1>(</span>root-commit<span style=color:#ff6ac1>)</span> 60e4d5e<span style=color:#ff6ac1>]</span> dependency update
+</span></span><span style=display:flex><span> <span style=color:#ff9f43>1</span> file changed, <span style=color:#ff9f43>104</span> insertions<span style=color:#ff6ac1>(</span>+<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span> create mode <span style=color:#ff9f43>100644</span> uv.lock</span></span></code></pre></div><h1 id=building-installing-and-versioning>Building, Installing and Versioning<a class=anchor href=#building-installing-and-versioning>#</a></h1><h2 id=entrypoint>Entrypoint<a class=anchor href=#entrypoint>#</a></h2><p>We changed the entrypoint to</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span>[project.scripts]
+</span></span><span style=display:flex><span>berlin-weather = <span style=color:#5af78e>&#34;berlin_weather.cli:main&#34;</span></span></span></code></pre></div><p>That is, the script <code>berlin-weather</code> is created and will now call <code>src/berlin_weather/cli.py</code>,
+and specifically the <code>main()</code> function in there.</p><p>We can check:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ ls -l .venv/bin/berlin-weather
+</span></span><span style=display:flex><span>-rwxr-xr-x  <span style=color:#ff9f43>1</span> kris  wheel  <span style=color:#ff9f43>328</span> Jan  <span style=color:#ff9f43>4</span> 22:38 .venv/bin/berlin-weather
+</span></span><span style=display:flex><span>$ cat .venv/bin/berlin-weather
+</span></span><span style=display:flex><span><span style=color:#78787e>#!/private/tmp/berlin-weather/.venv/bin/python</span>
+</span></span><span style=display:flex><span><span style=color:#78787e># -*- coding: utf-8 -*-</span>
+</span></span><span style=display:flex><span>import sys
+</span></span><span style=display:flex><span>from berlin_weather.cli import main
+</span></span><span style=display:flex><span><span style=color:#ff6ac1>if</span> <span style=color:#ff5c57>__name__</span> <span style=color:#ff6ac1>==</span> <span style=color:#5af78e>&#34;__main__&#34;</span>:
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>if</span> sys.argv<span style=color:#ff6ac1>[</span>0<span style=color:#ff6ac1>]</span>.endswith<span style=color:#ff6ac1>(</span><span style=color:#5af78e>&#34;-script.pyw&#34;</span><span style=color:#ff6ac1>)</span>:
+</span></span><span style=display:flex><span>        sys.argv<span style=color:#ff6ac1>[</span>0<span style=color:#ff6ac1>]</span> <span style=color:#ff6ac1>=</span> sys.argv<span style=color:#ff6ac1>[</span>0<span style=color:#ff6ac1>][</span>:-11<span style=color:#ff6ac1>]</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff6ac1>elif</span> sys.argv<span style=color:#ff6ac1>[</span>0<span style=color:#ff6ac1>]</span>.endswith<span style=color:#ff6ac1>(</span><span style=color:#5af78e>&#34;.exe&#34;</span><span style=color:#ff6ac1>)</span>:
+</span></span><span style=display:flex><span>        sys.argv<span style=color:#ff6ac1>[</span>0<span style=color:#ff6ac1>]</span> <span style=color:#ff6ac1>=</span> sys.argv<span style=color:#ff6ac1>[</span>0<span style=color:#ff6ac1>][</span>:-4<span style=color:#ff6ac1>]</span>
+</span></span><span style=display:flex><span>    sys.exit<span style=color:#ff6ac1>(</span>main<span style=color:#ff6ac1>())</span></span></span></code></pre></div><p>The script is small Python script, running with the interpreter from the <code>.venv</code> created by <code>uv</code>.
+It imports the entrypoint function from the entrypoint module,
+and then calls it.</p><p>To be able to use entrypoint scripts we need to write our code as an importable module,
+which is what the <code>--package</code> in <code>uv init --package</code> ensures.</p><h2 id=build-system-and-build>Build system and build<a class=anchor href=#build-system-and-build>#</a></h2><p>Our <code>pyproject.toml</code> also contains a build system:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span>[build-system]
+</span></span><span style=display:flex><span>requires = [<span style=color:#5af78e>&#34;uv_build&gt;=0.9.16,&lt;0.10.0&#34;</span>]
+</span></span><span style=display:flex><span>build-backend = <span style=color:#5af78e>&#34;uv_build&#34;</span></span></span></code></pre></div><p>This enables us to do</p><pre tabindex=0><code>$ uv build
+Building source distribution (uv build backend)...
+Building wheel from source distribution (uv build backend)...
+Successfully built dist/berlin_weather-0.1.0.tar.gz
+Successfully built dist/berlin_weather-0.1.0-py3-none-any.whl</code></pre><p>We get a <code>.whl</code>, a Python wheel (a built and installable &ldquo;binary&rdquo;, specific to a Python Version, an ABI and a platform).
+Our wheel is pure python, hence the ABI and playform are &ldquo;none&rdquo; and &ldquo;any&rdquo;, respectively.
+But for a CPython extension it may as well be &ldquo;cp310-cp37-manylinux&rdquo; (CPython 3.10,
+a specific variant of the CPython 3.7 ABI and diverse Linux platforms).</p><p>The <code>.tar.gz</code> is a source distribution, enabling to build the wheel locally yourself.</p><h2 id=installing>Installing<a class=anchor href=#installing>#</a></h2><p>We can install the <code>berlin-weather</code> project with <code>uv install .</code> (install from the local directory).</p><pre tabindex=0><code>$ uv tool install .
+Resolved 7 packages in 27ms
+Built berlin-weather @ file:///private/tmp/berlin-weather
+Prepared 1 package in 4ms
+Installed 7 packages in 4ms
++ anyio==4.12.0
++ berlin-weather==0.1.0 (from file:///private/tmp/berlin-weather)
++ certifi==2026.1.4
++ h11==0.16.0
++ httpcore==1.0.9
++ httpx==0.28.1
++ idna==3.11
+  Installed 1 executable: berlin-weather
+
+$ which berlin-weather
+  /Users/kris/.local/bin/berlin-weather
+
+$ uv tool uninstall berlin-weather
+  Uninstalled 1 executable: berlin-weather</code></pre><p>This installed the package with all dependencies in <code>~/.local</code>, including the entrypoint script,
+which ends up in <code>~/.local/bin</code>, which should be in our <code>$PATH</code>.</p><p>We can uninstall all this with <code>uv tool uninstall berlin-weather</code>.</p><h2 id=versioning>Versioning<a class=anchor href=#versioning>#</a></h2><p>Our <code>pyproject.toml</code> mentions a version number:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#ff5c57>$</span> cat pyproject.toml
+</span></span><span style=display:flex><span>[project]
+</span></span><span style=display:flex><span>name = <span style=color:#5af78e>&#34;berlin-weather&#34;</span>
+</span></span><span style=display:flex><span>version = <span style=color:#5af78e>&#34;0.1.0&#34;</span>
+</span></span><span style=display:flex><span>description = <span style=color:#5af78e>&#34;Add your description here&#34;</span>
+</span></span><span style=display:flex><span>readme = <span style=color:#5af78e>&#34;README.md&#34;</span>
+</span></span><span style=display:flex><span>authors = [
+</span></span><span style=display:flex><span>    { name = <span style=color:#5af78e>&#34;Kristian Koehntopp&#34;</span>, email = <span style=color:#5af78e>&#34;kris-git@koehntopp.de&#34;</span> }
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>requires-python = <span style=color:#5af78e>&#34;&gt;=3.10&#34;</span>
+</span></span><span style=display:flex><span>dependencies = [
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>&#34;httpx&gt;=0.28.1&#34;</span>,
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[project.scripts]
+</span></span><span style=display:flex><span>berlin-weather = <span style=color:#5af78e>&#34;berlin_weather.cli:main&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[build-system]
+</span></span><span style=display:flex><span>requires = [<span style=color:#5af78e>&#34;uv_build&gt;=0.9.21,&lt;0.10.0&#34;</span>]
+</span></span><span style=display:flex><span>build-backend = <span style=color:#5af78e>&#34;uv_build&#34;</span></span></span></code></pre></div><p>Here, the version is 0.1.0:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span>version = <span style=color:#5af78e>&#34;0.1.0&#34;</span></span></span></code></pre></div><p>A new version of the tool <code>berlin-weather</code> will only be installed when the version number changes.</p><p>We can bump the version number of our project easily with <code>uv version</code>:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ grep version pyproject.toml
+</span></span><span style=display:flex><span><span style=color:#ff5c57>version</span> <span style=color:#ff6ac1>=</span> <span style=color:#5af78e>&#34;0.1.0&#34;</span>
+</span></span><span style=display:flex><span>$ uv version --bump minor
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>9</span> packages in 26ms
+</span></span><span style=display:flex><span>      Built berlin-weather @ file:///private/tmp/berlin-weather
+</span></span><span style=display:flex><span>Prepared <span style=color:#ff9f43>1</span> package in 3ms
+</span></span><span style=display:flex><span>Uninstalled <span style=color:#ff9f43>1</span> package in 0.94ms
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>1</span> package in 2ms
+</span></span><span style=display:flex><span> - berlin-weather<span style=color:#ff6ac1>==</span>0.1.0 <span style=color:#ff6ac1>(</span>from file:///private/tmp/berlin-weather<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span> + berlin-weather<span style=color:#ff6ac1>==</span>0.2.0 <span style=color:#ff6ac1>(</span>from file:///private/tmp/berlin-weather<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span>berlin-weather 0.1.0 <span style=color:#ff6ac1>=</span>&gt; 0.2.0
+</span></span><span style=display:flex><span>$ grep version pyproject.toml
+</span></span><span style=display:flex><span><span style=color:#ff5c57>version</span> <span style=color:#ff6ac1>=</span> <span style=color:#5af78e>&#34;0.2.0&#34;</span></span></span></code></pre></div><p>And when we install this,
+we can see how the isolated environment maintained by the <code>uv tool install</code> function gets changed:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv tool install .
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>7</span> packages in 2ms
+</span></span><span style=display:flex><span>      Built berlin-weather @ file:///private/tmp/berlin-weather
+</span></span><span style=display:flex><span>Prepared <span style=color:#ff9f43>1</span> package in 4ms
+</span></span><span style=display:flex><span>Uninstalled <span style=color:#ff9f43>1</span> package in 0.92ms
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>1</span> package in 2ms
+</span></span><span style=display:flex><span> - berlin-weather<span style=color:#ff6ac1>==</span>0.1.0 <span style=color:#ff6ac1>(</span>from file:///private/tmp/berlin-weather<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span> + berlin-weather<span style=color:#ff6ac1>==</span>0.2.0 <span style=color:#ff6ac1>(</span>from file:///private/tmp/berlin-weather<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>1</span> executable: berlin-weather</span></span></code></pre></div><p>and</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ ls -l ~/.local/share/uv/tools/berlin-weather/lib/python3.14/site-packages/
+</span></span><span style=display:flex><span>total <span style=color:#ff9f43>24</span>
+</span></span><span style=display:flex><span>-rw-r--r--   <span style=color:#ff9f43>1</span> kris  staff    <span style=color:#ff9f43>18</span> Jan  <span style=color:#ff9f43>4</span> 23:03 _virtualenv.pth
+</span></span><span style=display:flex><span>-rw-r--r--   <span style=color:#ff9f43>1</span> kris  staff  <span style=color:#ff9f43>4342</span> Jan  <span style=color:#ff9f43>4</span> 23:03 _virtualenv.py
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>15</span> kris  staff   <span style=color:#ff9f43>480</span> Jan  <span style=color:#ff9f43>4</span> 23:03 anyio
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>10</span> kris  staff   <span style=color:#ff9f43>320</span> Jan  <span style=color:#ff9f43>4</span> 23:03 anyio-4.12.0.dist-info
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>4</span> kris  staff   <span style=color:#ff9f43>128</span> Jan  <span style=color:#ff9f43>4</span> 23:06 berlin_weather
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>11</span> kris  staff   <span style=color:#ff9f43>352</span> Jan  <span style=color:#ff9f43>4</span> 23:06 berlin_weather-0.2.0.dist-info
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>7</span> kris  staff   <span style=color:#ff9f43>224</span> Jan  <span style=color:#ff9f43>4</span> 23:03 certifi
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>9</span> kris  staff   <span style=color:#ff9f43>288</span> Jan  <span style=color:#ff9f43>4</span> 23:03 certifi-2026.1.4.dist-info
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>14</span> kris  staff   <span style=color:#ff9f43>448</span> Jan  <span style=color:#ff9f43>4</span> 23:03 h11
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>9</span> kris  staff   <span style=color:#ff9f43>288</span> Jan  <span style=color:#ff9f43>4</span> 23:03 h11-0.16.0.dist-info
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>14</span> kris  staff   <span style=color:#ff9f43>448</span> Jan  <span style=color:#ff9f43>4</span> 23:03 httpcore
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>8</span> kris  staff   <span style=color:#ff9f43>256</span> Jan  <span style=color:#ff9f43>4</span> 23:03 httpcore-1.0.9.dist-info
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>21</span> kris  staff   <span style=color:#ff9f43>672</span> Jan  <span style=color:#ff9f43>4</span> 23:03 httpx
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>9</span> kris  staff   <span style=color:#ff9f43>288</span> Jan  <span style=color:#ff9f43>4</span> 23:03 httpx-0.28.1.dist-info
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ff9f43>11</span> kris  staff   <span style=color:#ff9f43>352</span> Jan  <span style=color:#ff9f43>4</span> 23:03 idna
+</span></span><span style=display:flex><span>drwxr-xr-x   <span style=color:#ff9f43>8</span> kris  staff   <span style=color:#ff9f43>256</span> Jan  <span style=color:#ff9f43>4</span> 23:03 idna-3.11.dist-info</span></span></code></pre></div><p>That is, for each installed tool, uv maintains an isolated venv for production in
+<code>~/.local/share/uv/tools/berlin-weather</code>.
+In this particular venv, the version of <code>berlin_weather</code> has now been changed to <code>0.2.0</code>.</p><h1 id=adding-dev-and-test-dependencies>Adding dev and test dependencies<a class=anchor href=#adding-dev-and-test-dependencies>#</a></h1><p>Our new code not only has a runtime dependency on <code>httpx</code>,
+but we also want to use <code>ruff</code> for source code formatting (replacing <code>black</code>), and for linting (replacing <code>pylint</code>).
+We still use <code>mypy</code> for type checking, because <code>ty</code> is not yet production quality.
+These are <code>dev</code>-Dependencies, with <code>dev</code> being a dependency group.</p><p>We also want to use <code>pytest</code> for testing, and put that in either the <code>dev</code> dependency group,
+or into a special <code>test</code> dependency group.
+The latter allows the installation of only <code>pytest</code> in CI, while the full set of <code>dev</code> is not needed for CI.</p><p>We can add arbitrary dependency groups.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv add --group <span style=color:#ff5c57>test</span> pytest
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>16</span> packages in 63ms
+</span></span><span style=display:flex><span>      Built berlin-weather @ file:///private/tmp/berlin-weather
+</span></span><span style=display:flex><span>Prepared <span style=color:#ff9f43>2</span> packages in 16ms
+</span></span><span style=display:flex><span>Uninstalled <span style=color:#ff9f43>1</span> package in 0.94ms
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>7</span> packages in 13ms
+</span></span><span style=display:flex><span> ~ berlin-weather<span style=color:#ff6ac1>==</span>0.2.0 <span style=color:#ff6ac1>(</span>from file:///private/tmp/berlin-weather<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>iniconfig</span><span style=color:#ff6ac1>==</span>2.3.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>packaging</span><span style=color:#ff6ac1>==</span>25.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pluggy</span><span style=color:#ff6ac1>==</span>1.6.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pygments</span><span style=color:#ff6ac1>==</span>2.19.2
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pytest</span><span style=color:#ff6ac1>==</span>9.0.2
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>tomli</span><span style=color:#ff6ac1>==</span>2.3.0
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$ uv add --dev mypy ruff
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>21</span> packages in 54ms
+</span></span><span style=display:flex><span>      Built berlin-weather @ file:///private/tmp/berlin-weather
+</span></span><span style=display:flex><span>Prepared <span style=color:#ff9f43>3</span> packages in 336ms
+</span></span><span style=display:flex><span>Uninstalled <span style=color:#ff9f43>1</span> package in 0.67ms
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>6</span> packages in 11ms
+</span></span><span style=display:flex><span> ~ berlin-weather<span style=color:#ff6ac1>==</span>0.2.0 <span style=color:#ff6ac1>(</span>from file:///private/tmp/berlin-weather<span style=color:#ff6ac1>)</span>
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>librt</span><span style=color:#ff6ac1>==</span>0.7.7
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>mypy</span><span style=color:#ff6ac1>==</span>1.19.1
+</span></span><span style=display:flex><span> + mypy-extensions<span style=color:#ff6ac1>==</span>1.1.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pathspec</span><span style=color:#ff6ac1>==</span>0.12.1
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>ruff</span><span style=color:#ff6ac1>==</span>0.14.10</span></span></code></pre></div><p>We add <code>pytest</code> to the group <code>test</code>.
+We add <code>mypy</code> and <code>ruff</code> to the group <code>dev</code>.</p><p>A group is always specified as <code>--group &lt;name></code>.
+The group <code>dev</code> is special, we can address it as <code>--group dev</code>, but also as <code>--dev</code>.</p><p>Our <code>pyproject.toml</code> now grew a new table <code>[dependency-groups]</code> with subtables for each group:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span> cat pyproject.toml
+</span></span><span style=display:flex><span>[project]
+</span></span><span style=display:flex><span>name = <span style=color:#5af78e>&#34;berlin-weather&#34;</span>
+</span></span><span style=display:flex><span>version = <span style=color:#5af78e>&#34;0.2.0&#34;</span>
+</span></span><span style=display:flex><span>description = <span style=color:#5af78e>&#34;Add your description here&#34;</span>
+</span></span><span style=display:flex><span>readme = <span style=color:#5af78e>&#34;README.md&#34;</span>
+</span></span><span style=display:flex><span>authors = [
+</span></span><span style=display:flex><span>    { name = <span style=color:#5af78e>&#34;Kristian Koehntopp&#34;</span>, email = <span style=color:#5af78e>&#34;kris-git@koehntopp.de&#34;</span> }
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>requires-python = <span style=color:#5af78e>&#34;&gt;=3.10&#34;</span>
+</span></span><span style=display:flex><span>dependencies = [
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>&#34;httpx&gt;=0.28.1&#34;</span>,
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[project.scripts]
+</span></span><span style=display:flex><span>berlin-weather = <span style=color:#5af78e>&#34;berlin_weather.cli:main&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[build-system]
+</span></span><span style=display:flex><span>requires = [<span style=color:#5af78e>&#34;uv_build&gt;=0.9.21,&lt;0.10.0&#34;</span>]
+</span></span><span style=display:flex><span>build-backend = <span style=color:#5af78e>&#34;uv_build&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[dependency-groups]
+</span></span><span style=display:flex><span>dev = [
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>&#34;mypy&gt;=1.19.1&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>&#34;ruff&gt;=0.14.10&#34;</span>,
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>test = [
+</span></span><span style=display:flex><span>    <span style=color:#5af78e>&#34;pytest&gt;=9.0.2&#34;</span>,
+</span></span><span style=display:flex><span>]</span></span></code></pre></div><p>Resolution (the creation of the <code>uv.lock</code> file) will always take all dependencies in all groups into account,
+even if we unselect certain dependency groups.
+This is to ensure package versions stay stable and do not change just because we deselect testing or something.
+If we didn&rsquo;t do that, we&rsquo;d have code that may work, but only when <code>test</code> is installed,
+because that selects a non-broken version of some package somewhere.</p><p>We can use <code>uv sync</code> to install no, some or all dependency groups:</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv sync --no-group <span style=color:#ff5c57>test</span> --no-dev
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>21</span> packages in 7ms
+</span></span><span style=display:flex><span>Audited <span style=color:#ff9f43>9</span> packages in 0.53ms</span></span></code></pre></div><p>We deselect the group <code>test</code>, and the group <code>dev</code>. We could have written <code>-no-group dev</code>, but for dev there is also special syntax.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv sync --no-group <span style=color:#ff5c57>test</span> --dev
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>21</span> packages in 6ms
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>6</span> packages in 17ms
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>librt</span><span style=color:#ff6ac1>==</span>0.7.7
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>mypy</span><span style=color:#ff6ac1>==</span>1.19.1
+</span></span><span style=display:flex><span> + mypy-extensions<span style=color:#ff6ac1>==</span>1.1.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pathspec</span><span style=color:#ff6ac1>==</span>0.12.1
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>ruff</span><span style=color:#ff6ac1>==</span>0.14.10
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>tomli</span><span style=color:#ff6ac1>==</span>2.3.0</span></span></code></pre></div><p>We select the <code>dev</code> dependencies, but not the <code>test</code> dependencies.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv sync --all-groups
+</span></span><span style=display:flex><span>Resolved <span style=color:#ff9f43>21</span> packages in 6ms
+</span></span><span style=display:flex><span>Installed <span style=color:#ff9f43>5</span> packages in 8ms
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>iniconfig</span><span style=color:#ff6ac1>==</span>2.3.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>packaging</span><span style=color:#ff6ac1>==</span>25.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pluggy</span><span style=color:#ff6ac1>==</span>1.6.0
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pygments</span><span style=color:#ff6ac1>==</span>2.19.2
+</span></span><span style=display:flex><span> + <span style=color:#ff5c57>pytest</span><span style=color:#ff6ac1>==</span>9.0.2</span></span></code></pre></div><p>We install all dependencies from all groups.</p><p>To run tools on our code, we need to run them <strong>in</strong> the environment,
+so <code>uv run pytest</code>, <code>uv run mypy src</code> and <code>uv run ruff format src</code>, <code>uv run ruff checks --fix</code>.</p><div class=highlight><pre tabindex=0 style=color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ uv run ruff format src
+</span></span><span style=display:flex><span><span style=color:#ff9f43>1</span> file reformatted, <span style=color:#ff9f43>1</span> file left unchanged
+</span></span><span style=display:flex><span>$ uv run ruff check --fix
+</span></span><span style=display:flex><span>All checks passed!</span></span></code></pre></div><h1 id=what-we-get>What we get<a class=anchor href=#what-we-get>#</a></h1><p>We get an installable tool that ends up in the command line <code>PATH</code>.
+It has a starter script in <code>~/.local/bin</code>, but is actually running in an isolated environment with exactly determined versions.</p><p>We have tooling to build the installable wheel with our code.</p><p>We have tooling to version our module.</p><p>We have tooling to manage not only our code, but also the tools we use for development.</p><p>We can manage the runtime, dev, test and other dependencies of our cide.</p><p>We do all this with one single self-contained tool, <code>uv</code>.</p></article><footer class=book-footer><div class="flex flex-wrap justify-between"><div></div><div></div></div><div class="flex flex-wrap justify-between"><span><a href=/books/uv-class/02-what-is-uv/ class="flex align-center"><img src=/icons/backward.svg class=book-icon alt=Backward>
+<span>What uv is and how it works</span>
+</a></span><span><a href=/books/uv-class/04-the-uv-way/ class="flex align-center"><span>Creating projects the uv way</span>
+<img src=/icons/forward.svg class=book-icon alt=Forward></a></span></div><div class=book-comments></div><script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script></footer><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><div class=book-toc-content><nav id=TableOfContents><ul><li><a href=#create-a-project>Create a project</a><ul><li><a href=#testing-the-execution>Testing the execution</a></li><li><a href=#we-use-uv-init---package>We use <code>uv init --package</code></a></li><li><a href=#a-basic-pyprojecttoml>A basic <code>pyproject.toml</code></a></li><li><a href=#running-the-application-through-the-entrypoint-script>Running the application through the entrypoint script</a></li></ul></li><li><a href=#adding-some-code>Adding some code</a><ul><li><a href=#adding-a-dependency-with-uv-add>Adding a dependency with <code>uv add</code></a></li><li><a href=#running-the-script>Running the script</a></li><li><a href=#the-uvlock-file>The <code>uv.lock</code> file</a></li><li><a href=#check-in-the-uvlock-file>Check in the <code>uv.lock</code> file</a></li></ul></li><li><a href=#building-installing-and-versioning>Building, Installing and Versioning</a><ul><li><a href=#entrypoint>Entrypoint</a></li><li><a href=#build-system-and-build>Build system and build</a></li><li><a href=#installing>Installing</a></li><li><a href=#versioning>Versioning</a></li></ul></li><li><a href=#adding-dev-and-test-dependencies>Adding dev and test dependencies</a></li><li><a href=#what-we-get>What we get</a></li></ul></nav></div></aside></main></body></html>
