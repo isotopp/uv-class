@@ -779,3 +779,35 @@ We have tooling to manage not only our code, but also the tools we use for devel
 We can manage the runtime, dev, test and other dependencies of our cide.
 
 We do all this with one single self-contained tool, `uv`.
+
+# Exercises
+
+## 1. Project Scaffolding (Reproduction)
+Why does this walkthrough recommend using `uv init --package` instead of a simple `uv init`?
+List at least three benefits mentioned in the text.
+
+## 2. Entrypoints and Scripts (Reproduction)
+In `pyproject.toml`, what is the purpose of the `[project.scripts]` section? 
+Explain what `berlin-weather = "berlin_weather.cli:main"` tells `uv` to do during installation.
+
+## 3. Probing the Environment (Application)
+Follow the walkthrough to create the `berlin-weather` project and add `httpx`.
+Then, run the app with two different Python versions (e.g., 3.10 and 3.13) using `uv run --python <version>`. 
+Observe the output of `uv` carefully. Why does `uv` say "Removed virtual environment" and "Creating virtual environment" when you switch versions?
+
+## 4. Versioning and Tool Installation (Application)
+Install your `berlin-weather` project as a tool using `uv tool install .`. 
+Verify where the executable is placed using `which berlin-weather`.
+Now, use `uv version --bump patch` to change the version, and run `uv tool install .` again.
+Observe the output: how does `uv` handle the transition from the old version to the new one in the tool environment?
+Go into the `.local` directory, find the `berlin-weather` application in the path – what does it look like?
+The application runs from an isolated environment, a virtual environment in `.local/share/uv/tools/berlin-weather`.
+Explore this environment.
+
+## 5. Transitive Dependencies (Transfer)
+Open the `uv.lock` file generated after adding `httpx`.
+Find the `anyio` package entry.
+Note the `dependencies` list for `anyio`.
+Explain why a project running on Python 3.10 might have more packages installed in its `.venv`
+than the same project running on Python 3.14,
+based on the `marker` fields in `uv.lock`.

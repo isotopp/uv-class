@@ -275,3 +275,30 @@ The cache prevents multiple downloads of wheels and packages,
 allowing recreation of a good-sized venv in a few hundred milliseconds "on the fly".
 
 This is the foundation of `uv`'s speed and isolation.
+
+# Exercises
+
+## 1. Core Concepts (Reproduction)
+What are the four key ideas about environments that `uv` promotes (as listed in the beginning of this chapter)?
+Briefly explain what "environments are disposable" means in the context of `uv`.
+
+## 2. The Role of the Lockfile (Reproduction)
+Why is it mandatory to check the `uv.lock` file into version control?
+What is the difference between "intent" (in `pyproject.toml`) and "resolution" (in `uv.lock`)?
+
+## 3. Investigating the Cache (Application)
+Run `uv cache dir` to find your local cache directory.
+Then, run `uv cache size --human` (you might need to enable preview features as shown in the chapter).
+How much space is your `uv` cache currently using?
+
+## 4. Environment Isolation (Application)
+Create two new projects in separate directories using `uv init`.
+Add different dependencies to each (e.g., `uv add requests` in one and `uv add httpx` in the other).
+Use `uv run python -c "import requests"` and `uv run python -c "import httpx"` in both directories.
+What happens, and how does this demonstrate isolation?
+
+## 5. The "Works on My Machine" Problem (Transfer)
+A colleague says: "I don't need `uv.lock`, I just use `requirements.txt` with versions like `requests>=2.0.0`.
+It works fine on my machine."
+Based on what you learned about environment drift and reproducibility,
+explain to them why this approach might lead to failures in CI/CD or on a teammate's machine.

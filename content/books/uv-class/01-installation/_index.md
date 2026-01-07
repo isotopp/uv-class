@@ -321,3 +321,30 @@ There is a `--directory` option, which does `cd` into a directory first thing th
 We already mentioned `--config-file ...` and `--no-config`.
 
 There are TLS options and options to completely disable network access.
+
+# Exercises
+
+## 0. Installation (mandatory)
+Install `uv` on your computer and prove that it works by displaying its version and the path to the executable.
+
+## 1. Updating `uv` (easy)
+How do you update `uv` if you installed it using the native installer?
+How does this differ if you used a package manager like Homebrew or Scoop?
+
+## 2. Configuration Hierarchy (easy)
+List the three primary ways `uv` can be configured.
+In what order of precedence are they applied if the same setting is defined in all three?
+
+## 3. Shell Integration (medium)
+Generate the shell completion script for your preferred shell (e.g., `bash`, `zsh`, or `powershell`).
+Identify where this script needs to be placed or sourced on your system to make completions persistent across sessions.
+
+## 4. Custom Configuration (medium)
+Create a `uv.toml` file in a temporary directory that sets a specific Python version (e.g., `3.12`) as the default.
+Use `uv --config-file <path>` or run `uv` from that directory to prove that it respects this configuration.
+
+## 5. Transfer: Strategy Design (hard)
+A development team wants to ensure all members use the same Python version and the same internal package index.
+However, their CI/CD pipeline needs to use a different, faster mirror for the index.
+Propose a configuration strategy using `pyproject.toml`, `uv.toml`,
+and environment variables that satisfies these requirements while minimizing manual configuration for developers.
