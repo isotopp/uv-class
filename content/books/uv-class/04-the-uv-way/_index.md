@@ -3,9 +3,19 @@ title: "General Options and TOML"
 weight: 40
 date: 2025-12-22T00:00:00Z
 description: |
-  What uv does, general options, and TOML for beginners.
+  An overview of uv's capabilities, how to get help, common options, and the basics of TOML configuration.
 
 ---
+
+{{% details title="**Summary**" open=true %}}
+**uv's Capabilities:** uv handles Python versions, scripts, projects, tools, and provides a pip-compatible interface and cache management.
+
+**Getting Help:** Use `uv --help`, `uv <command> --help`, or `uv help <command>` to access documentation.
+
+**Common Options:** Global flags like `--no-cache`, `--managed-python`, `--offline`, and `--config-file` work across most subcommands.
+
+**TOML Basics:** uv uses TOML for configuration. It supports basic types (strings, integers, booleans), tables for organization, and arrays of tables for lists of objects.
+{{% /details %}}
 
 # What uv can do
 
@@ -130,3 +140,94 @@ These are general-purpose flags that affect `uv`'s behavior across the board:
 - `--config-file <CONFIG_FILE>`: Specifies a custom `uv.toml` file to use.
 - `--no-config`: Prevents `uv` from discovering any configuration files (`pyproject.toml` or `uv.toml`).
 - `--color <COLOR_CHOICE>`: Controls whether to use colored output (`auto`, `always`, or `never`).
+
+# TOML basics
+
+`uv` uses TOML (Tom's Obvious, Minimal Language) for its configuration files (`pyproject.toml` and `uv.toml`).
+TOML is designed to be easy to read and maps directly to a hash table (or JSON object).
+
+## Basic types
+
+TOML supports several basic data types:
+
+- **Strings**: Always wrapped in double quotes. `"Hello, world!"`
+- **Integers**: Plain numbers. `42`, `-10`
+- **Floats**: Numbers with decimal points. `3.14`
+- **Booleans**: `true` or `false` (lowercase).
+- **Arrays**: Values in square brackets. `["a", "b", "c"]`
+
+Equivalent JSON:
+```json
+{
+  "name": "uv-project",
+  "version": 1,
+  "active": true,
+  "tags": ["fast", "reliable"]
+}
+```
+
+Equivalent TOML:
+```toml
+name = "uv-project"
+version = 1
+active = true
+tags = ["fast", "reliable"]
+```
+
+## Tables
+
+Tables (often called dictionaries or maps in other languages) are defined by a header in square brackets.
+Everything following that header until the next header belongs to that table.
+
+Equivalent JSON:
+```json
+{
+  "project": {
+    "name": "berlin-weather",
+    "version": "0.1.0"
+  }
+}
+```
+
+Equivalent TOML:
+```toml
+[project]
+name = "berlin-weather"
+version = "0.1.0"
+```
+
+### Inline tables
+
+For small sets of data, you can use inline tables, which look like JSON objects but use `=` instead of `:`.
+
+```toml
+authors = [{ name = "Alice", email = "alice@example.com" }]
+```
+
+## Arrays of tables
+
+When you need a list of objects, TOML uses double square brackets `[[table]]`.
+Each time you use the double bracket header, it appends a new entry to the array.
+
+Equivalent JSON:
+```json
+{
+  "index": [
+    { "url": "https://pypi.org/simple", "default": true },
+    { "url": "https://test.pypi.org/simple" }
+  ]
+}
+```
+
+Equivalent TOML:
+```toml
+[[index]]
+url = "https://pypi.org/simple"
+default = true
+
+[[index]]
+url = "https://test.pypi.org/simple"
+```
+
+This is how `uv` handles multiple package indexes or complex dependency groups.
+Every `[[index]]` block adds another index to the list.
