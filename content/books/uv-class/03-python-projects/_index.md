@@ -767,18 +767,17 @@ All checks passed!
 
 # What we get
 
-We get an installable tool that ends up in the command line `PATH`.
-It has a starter script in `~/.local/bin`, but is actually running in an isolated environment with exactly determined versions.
+In this walkthrough, we:
+- Initialized a new Python project using `uv init --package`, establishing a robust `src` layout and an installable structure from the start.
+- Developed a functional command-line application that fetches weather data from an external API (`BrightSky`) using `httpx`.
+- Managed dependencies by adding `httpx` and observed how `uv` automatically handles transitive dependencies and environment markers in `uv.lock`.
+- Demonstrated the flexibility of `uv` by running our application across multiple Python versions (3.10 and 3.14) with automatic virtual environment management.
+- Built the project into a distributable wheel and source distribution using `uv build`.
+- Installed and uninstalled the application as a standalone system tool using `uv tool install`.
+- Automated version management with `uv version --bump`.
+- Organized development and testing workflows by adding `dev` and `test` dependency groups for tools like `ruff`, `mypy`, and `pytest`.
 
-We have tooling to build the installable wheel with our code.
-
-We have tooling to version our module.
-
-We have tooling to manage not only our code, but also the tools we use for development.
-
-We can manage the runtime, dev, test and other dependencies of our cide.
-
-We do all this with one single self-contained tool, `uv`.
+Ultimately, we get a professional, reproducible, and easily distributable Python project, all managed through a single, unified tool: `uv`.
 
 # Exercises
 

@@ -12,17 +12,6 @@ Everything in `uv` follows the same pattern: declare intent in `pyproject.toml`,
 let `uv` resolve and lock dependencies in `uv.lock`, execute inside isolated environments that are recreated on the fly.
 {{% /details %}}
 
-## Topics
-
-  - Environments and isolation
-    - Project environments  
-    - Temporary isolated environments
-
-  - Cache management
-  - What is cached
-  - Where it lives
-  - When to clear it and when not to
-
 # What uv actually does
 
 This chapter explains what `uv` actually does, beyond the shorthand “it installs dependencies”.
