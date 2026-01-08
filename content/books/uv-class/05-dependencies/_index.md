@@ -402,32 +402,40 @@ But in a CI/CD pipeline,
 `--refresh` ensures you are getting the absolute latest files if a package was re-published with the same version 
 (which shouldn't happen, but sometimes does in private registries).
 
-## Python Discovery and Managed Python
+# Exercises
 
-`uv` needs a Python interpreter to create a virtual environment.
-It will use locally installed python versions (e.g. system python or homebrew installed python) if found.
+## 1. Python Projects and Dependencies
+- **Reproduction:** What is the difference between `[project.dependencies]` and `[dependency-groups]` in `pyproject.toml`?
+- **Reproduction:** How do you add a dependency to a specific group named `test`?
+- **Application:** You want to add `requests` but only versions in the `2.x` range starting from `2.31.0`. Write the `uv add` command for this.
 
-It searches for one in this order:
-1. An active virtual environment (e.g., if you set `VIRTUAL_ENV`).
-2. A `.python-version` file in the current or parent directory.
-3. The `requires-python` constraint in `pyproject.toml`.
-4. System-wide installations (Path, Homebrew, etc.).
+## 2. Dependency Resolution
+- **Reproduction:** When does `uv` perform dependency resolution?
+- **Reproduction:** Does `uv` resolve only the active dependency groups, or all of them? Why?
+- **Application:** If package A requires `httpx>=0.20` and package B requires `httpx<0.28`, what version range will `uv` consider for `httpx`?
 
-With `--managed-python` it does not do that, but installs a specific, known build of Python.
-This ensures that everyone on the team uses the exact same interpreter.
+## 3. Lockfiles
+- **Reproduction:** Name three things recorded in `uv.lock` for every package.
+- **Reproduction:** Why should `uv.lock` be committed to version control?
+- **Application:** You suspect a colleague is using a different version of a transitive dependency than you are. How can `uv.lock` help you prove this or resolve the discrepancy?
 
-### `--managed-python`
+## 4. `uv sync` and `uv run`
+- **Reproduction:** What is the relationship between `uv.lock` and `uv sync`?
+- **Reproduction:** Why is it said that the `.venv` is a "derived artifact"?
+- **Application:** You have just pulled changes from Git that include an updated `uv.lock`. What command should you run to ensure your local environment matches?
 
-We strongly recommend using `uv` to manage your Python versions (`--managed-python`).
+## 5. Dependencies and Docker Installs
+- **Reproduction:** What is the purpose of the `--frozen` flag in a Docker `RUN` command?
+- **Reproduction:** What does `--no-install-project` do, and how does it help with Docker layer caching?
+- **Application:** Write a `uv sync` command for a CI job that only needs the `test` dependency group and must not include the `dev` group or the main project code.
+- **Transfer:** Design a multi-stage Dockerfile strategy for a `uv`-managed project. Your strategy should:
+    1. Maximize caching of third-party dependencies.
+    2. Result in a production image that contains only the runtime dependencies (no `dev` or `test` tools).
+    3. Include pre-compiled Python bytecode for faster startup.
+    4. Ensure the final image is as small as possible.
+    Explain each step of your strategy and the flags used.
 
-- **Reproducibility**: `uv` downloads specific, known builds of Python, ensuring everyone on the team uses the exact same interpreter.
-- **Isolation**: It avoids the "polluted" system Python which might have OS-specific packages installed.
-
-**The Python Build Standalone Caveat**:
-The
-[`python-build-standalone`](https://github.com/astral-sh/python-build-standalone)
-project used by `uv` to build managed Python versions does not include the `tkinter` module by default.
-This is because it is not a cross-platform solution and requires the system's Tcl/Tk libraries to be installed.
-If your application requires a GUI built with `tkinter`,
-you might need to use a "local" Python (like one installed via Homebrew or a system installer, plus `python-tk`)
-that is linked against your OS's windowing system.
+## 6. Installation
+- **Reproduction:** Explain the difference between `clone` and `copy` link modes. Which one is default on macOS?
+- **Reproduction:** What is the benefit of using `--compile-bytecode` during installation?
+- **Application:** You are working on a machine with very limited disk space and multiple `uv` projects. Which `--link-mode` would you choose to minimize disk usage, and what is the requirement for it to work?
