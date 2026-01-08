@@ -333,9 +333,9 @@ This short program calls `https://httpbin.org/get` to get the current IP.
 Running this script without `uv` or without the `/// script` header results in an error due to `httpx` missing.
 
 ```
-$ uv run whoami.py
+$ uv run whoami-no-dep.py
 Traceback (most recent call last):
-  File "~/Source/uv-class/whoami/whoami.py", line 5, in <module>
+  File "~/Source/uv-class/whoami/whoami-no-dep.py", line 6, in <module>
     import httpx
 ModuleNotFoundError: No module named 'httpx'
 ```
@@ -404,6 +404,125 @@ and then run that code.
 There is no way to specifically disable this feature.
 You can `uv run --offline ...` or `UV_OFFLINE=1 uv run ...` to disable any network access,
 but there is no way to just disable uv-running a URL.
+
+## Using `--with <dependency>`
+
+As we saw above, if we try to run `whoami-no-dep.py`, this fails due to the missing `httpx` dependency.
+
+Using the `--with <dependency>`, the dependency will be installed into a new, transient environment.
+The dependency is allowed to violate version constraints.
+
+```
+$ uv run --with httpx whoami-no-dep.py
+Your apparent IP: 5.166.154.224
+```
+
+## Editing inline dependencies
+
+You can create a script with inline dependencies with the `--script` option:
+
+```
+$ uv init --script bla.py
+Initialized script at `bla.py`
+
+$ cat bla.py
+# /// script
+# requires-python = ">=3.14"
+# dependencies = []
+# ///
+
+
+def main() -> None:
+    print("Hello from bla.py!")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+Dependencies are added and removed the same way:
+
+``` 
+$ uv add --script bla.py  httpx
+Resolved 6 packages in 2ms
+
+$ cat bla.py
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#     "httpx>=0.28.1",
+# ]
+# ///
+
+
+def main() -> None:
+    print("Hello from bla.py!")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+and
+
+``` 
+$ uv remove --script bla.py httpx
+Updated `bla.py`
+```
+
+## Running scripts automatically with `uv`
+
+The magical sheband incantation to run a script through `uv` is
+
+``` 
+#!/usr/bin/env -S uv run --script
+```
+
+This will find `uv` in the path, and execute `uv` with the parameters listed `uv run --script` plus the name of the script
+`uv` with automatically download a Python interpreter if needed,
+detect any inline dependency declaration,
+download the dependencies
+and run the result.
+
+This is rather powerful:
+
+```python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#     "pyqt5>=5.15.11",
+# ]
+# ///
+
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QGridLayout
+
+app = QApplication(sys.argv)
+widget = QWidget()
+grid = QGridLayout()
+
+text_label = QLabel()
+text_label.setText("Hello World!")
+grid.addWidget(text_label)
+
+widget.setLayout(grid)
+widget.setGeometry(100, 100, 200, 50)
+widget.setWindowTitle("uv")
+widget.show()
+sys.exit(app.exec_())
+```
+
+and
+
+``` 
+$ ./q.py
+```
+
+will autodownload a full Qt5, and then show a small window:
+
+![](q-py-screenshot.png)
+
 
 ## Making a persistent `.venv` for a script
 

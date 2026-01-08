@@ -1,11 +1,5 @@
 #!/usr/bin/env -S uv run --script
-# Script at /whoami/whoami.py in this repository, https://github.com/isotopp/uv-class
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#   "httpx>=0.28",
-# ]
-# ///
+# Script at /whoami/whoami-no-dep.py in this repository, https://github.com/isotopp/uv-class
 
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime

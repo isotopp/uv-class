@@ -38,6 +38,11 @@ By using **Managed Python**, you ensure:
 2. **Cleanliness:** The interpreter starts with a completely empty `site-packages` (only the standard library).
 3. **Flexibility:** You can easily switch between Python 3.10, 3.12, 3.14, or even experimental "Free-threaded" (GIL-less) builds without any complex system setup.
 
+Variants:
+- Starting with 3.13 (3.14 in as the default), the free-threaded variants of Python become available. Selector: `+freethreaded`.
+- If you want a variant with a global lock (gil), the selector is `+gil`.
+- Debug builds of Python are slower and not useful for general use, but a non-optimized version of Python with Debug symbols can be requested as the `+debug` variant.
+
 ### Enforcing Managed Python
 
 You can tell `uv` to *only* use its managed versions and ignore whatever is on your `PATH` by setting an environment variable or a config option:
@@ -54,6 +59,13 @@ python-preference = "only-managed"
 ```
 
 This is a great way to ensure that you never accidentally rely on a local system installation.
+
+Valid values for this option are:
+
+- only-managed: Only use managed Python installations; never use system Python installations.
+- managed: the default, use managed Python installations, if already downloaded. Use System python versions, if matching the requested version. Only download new managed Python if the requested version cannot otherwise be matched.
+- system: Prefer system Python installations over managed Python installations.
+- only-system: Only use system Python installations; never use managed Python installations. Equivalent to --no-managed-python.
 
 # Requesting a version
 
@@ -115,6 +127,8 @@ cpython-3.11.14-macos-aarch64-none  <download available>
 ...
 ```
 
+The options `--managed-python` and `--no-managed-python` select for managed and not managed Python versions, respectively.
+
 ### `uv python install`
 Manually download and install specific versions.
 ```
@@ -139,7 +153,7 @@ for example `brew uninstall python#3.8` to uninstall a Python version 3.8 manage
 
 ### `uv python find`
 Show the path to the interpreter that `uv` would use for a given requirement.
-```bash
+```
 $ pwd
 ~/Source/uv-class/berlin-weather
 $ uv python find
@@ -152,7 +166,7 @@ $ uv python find 3.11
 
 ### `uv python dir`
 Shows where `uv` stores its managed Python installations.
-```bash
+```
 $ uv python dir
 ~/.local/share/uv/python
 ```
