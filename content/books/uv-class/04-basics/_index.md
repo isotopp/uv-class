@@ -88,7 +88,17 @@ uv help init  # longer than --help
 ```
 
 Because `uv` commands often have many options, the help output can be quite long.
-You can pipe the output to a pager like `less` to make it easier to read:
+By default, `uv` detects if you are in a terminal and may automatically use a pager (like `less`) for the output.
+
+If you want to read the help output without a pager (for example, to copy it or if you are scripting),
+you can pipe the output to `cat`:
+
+```bash
+uv help init | cat
+```
+
+Conversely, if you want to explicitly use a pager,
+or if you are in an environment where `uv` doesn't detect the terminal correctly, you can always pipe to `less`:
 
 ```bash
 uv run --help | less
