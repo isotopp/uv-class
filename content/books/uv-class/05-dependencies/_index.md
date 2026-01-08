@@ -62,6 +62,7 @@ Managing dependencies in `uv` is primarily done through the `uv add` and `uv rem
 ### `uv add`
 
 When we ran `uv add httpx` in the `berlin-weather` project, `uv` performed several actions:
+
 1. It looked up `httpx` on PyPI.
 2. It found the latest compatible version.
 3. It updated the `dependencies` array in `pyproject.toml`.
@@ -73,9 +74,22 @@ When we ran `uv add httpx` in the `berlin-weather` project, `uv` performed sever
 By updating both `pyproject.toml` (your intent) and `uv.lock` (the resolution) immediately,
 `uv` ensures that your development environment is always in sync with your declarations.
 
+### Version constraints
+
+You may also specify version constraints in `uv add`:
+
+```
+uv add "httpx>=0.23,<0.30"
+```
+
+`uv` puts exactly this version specifier with constraints into `pyproject.toml` and uses this to resolve.
+This particular version constraint will allow `uv` to use `httpx` versions from `0.23` up to but not including `0.30`.
+
+
 ### `uv remove`
 
-Similarly, `uv remove httpx` would:
+Similarly to `uv add`, `uv remove httpx` would:
+
 1. Remove the entry from `pyproject.toml`.
 2. Re-resolve the project (removing any transitive dependencies that are no longer needed).
 3. Update `uv.lock`.
@@ -84,6 +98,17 @@ Similarly, `uv remove httpx` would:
 ## Runtime vs development dependencies
 
 Not all dependencies are needed to run the application. Some are only needed for development or testing.
+
+A dependency is defined as "code that is required for the application or build process to function,
+but that you did not write."
+Dependencies are imported through your codebase through download, from PyPI or other package repositories,
+Python also uses the term "index" for this.
+
+All dependencies are declared in the `pyproject.toml`, and are assigned a dependency group.
+The `uv` dependency resolution process decides what exact version of a dependency is being downloaded from an index, 
+and this decision is recorded in the `uv.lock` file.
+
+Types of dependencies are:
 
 ### Runtime Dependencies
 
@@ -102,9 +127,9 @@ By running `uv add --dev ruff mypy`, you tell `uv` to put these in a special `de
 ### Dependency Groups (`--group <name>`)
 
 You can create arbitrary groups for specific needs.
-`--dev` is just a shorthand for the longer `--group dev` option,
+`--dev` is just shorthand for the longer `--group dev` option,
 because about every projecy will need development dependencies.
-But we can create arbitarily named groups, and add dependencies to them.
+But we can create arbitrarily named groups and add dependencies to them.
 
 Another commonly used group is `test`.
 We used `uv add --group test pytest` for our testing framework.
@@ -119,12 +144,18 @@ Resolution is the process of finding a set of package versions that satisfy all 
 When does it happen?
 : Every time you `add`, `remove`, or run `uv lock`.
   `uv` is designed to be so fast that it can re-resolve the entire project frequently.
+
 What is considered?
 : `uv` considers all dependency groups during resolution.
-Versions and Ranges
-: By default, `uv add` uses "compatible" version ranges (e.g., `httpx>=0.28.1`).
 
-**Why this way?** Resolving all groups together prevents "dependency hell"
+Versions and Ranges
+: By default,
+  `uv add` uses the newest version of a library
+  that is compatible with all requirements from all packages and the `pyproject.toml`.
+  Different resolver strategies exist (`--resolution <strategy>` switch), discussed elsewhere.
+
+Why this way?
+: Resolving all groups together prevents "dependency hell"
 where adding a test tool later breaks your runtime environment.
 If a conflict exists, `uv` finds it immediately rather than at deployment time.
 Also, the same versions of everything are installed at all times, so the behavior (and the bugs)
@@ -132,7 +163,7 @@ of your project does not change when certain dependency groups are activated or 
 
 ## Lockfiles
 
-The `uv.lock` file is what powers reproducibility in `uv.
+The `uv.lock` file is what powers reproducibility in `uv`.
 
 What it contains
 : Every single package in your environment (direct and transitive), its exact version, the source URL,
@@ -153,11 +184,13 @@ Authority
   When you run `uv sync`, `uv` doesn't look at PyPI to see if there's a newer version;
   it looks at the lockfile and makes your `.venv` match it exactly.
   You can tell `uv sync` to activate or deactivate dependency groups, though.
+
 Automatic Sync
 : `uv run` will automatically check if your `pyproject.toml` or `uv.lock` has changed 
   and perform a hidden `uv sync` if needed.
 
-**Why this way?** This makes the virtual environment a "derived artifact."
+Why this way?
+: This makes the virtual environment a "derived artifact."
 You don't "manage" the `.venv`; you manage the `pyproject.toml` and `uv.lock`, and `uv` makes the `.venv` happen.
 
 ## Upgrading with `uv lock`
