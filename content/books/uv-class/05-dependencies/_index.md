@@ -161,6 +161,54 @@ If a conflict exists, `uv` finds it immediately rather than at deployment time.
 Also, the same versions of everything are installed at all times, so the behavior (and the bugs)
 of your project does not change when certain dependency groups are activated or deactivated.
 
+## Result of Dependency Resolution
+
+Resolution
+: "Find a compatible set of versions"
+
+That means:
+
+- Take the declared dependencies
+- Take their dependencies and their dependencies dependencies and so on -> transitive dependencies
+- Look at all version constraints
+- Look at the Python Version constraints
+
+Find the newest set of dependencies that, taken together, fulfills all constraints.
+
+- `berlin-weather` depends on `httpx`
+- `httpx` depends on `httpcore` and many others.
+
+- We also added `dev` and `test` dependencies.
+
+```
+$ uv pip tree
+berlin-weather v0.1.0
+└── httpx v0.28.1
+    ├── anyio v4.12.1
+    │   └── idna v3.11
+    ├── certifi v2026.1.4
+    ├── httpcore v1.0.9
+    │   ├── certifi v2026.1.4
+    │   └── h11 v0.16.0
+    └── idna v3.11
+mypy v1.19.1
+├── librt v0.7.7
+├── mypy-extensions v1.1.0
+├── pathspec v1.0.2
+└── typing-extensions v4.15.0
+pytest v9.0.2
+├── iniconfig v2.3.0
+├── packaging v25.0
+├── pluggy v1.6.0
+└── pygments v2.19.2
+ruff v0.14.10
+```
+
+The version numbers shown reflect the resolved environment, not the constraint set.
+
+"Resolution" is a graph problem and becomes hard very quickly in larger projects.
+It is not easy to solve for humans, which is why we write tools for it.
+
 ## Lockfiles
 
 The `uv.lock` file is what powers reproducibility in `uv`.

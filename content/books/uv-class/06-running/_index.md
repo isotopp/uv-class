@@ -3,29 +3,258 @@ title: "Running code and tools consistently"
 weight: 60
 date: 2025-12-22T00:00:00Z
 description: |
-  Running code and tools consistently
+  Mastering `uv run` and `uvx`: how `uv` manages environments for scripts, projects, and tools on the fly.
 
 ---
 
-This chapter establishes uv as the single execution interface.
-Students learn that running code, tests, linters, and formatters are all the same category of action:
-executing tools in a controlled environment.
+{{% details title="**Summary**" open=true %}}
+**The `uv run` command** is the primary way to execute code. It ensures a consistent environment is available, creating or updating it as needed.
 
-This is where habits are formed.
+**Environment Discovery:** `uv` finds where it should run by looking for a `pyproject.toml`, or by creating an ephemeral environment for a single script.
+
+**Editable Installs:** By default, `uv` installs your project in "editable" mode so changes to source code are reflected immediately.
+
+**Tool Execution:** `uvx` (or `uv tool run`) allows running tools in isolated, temporary environments without affecting your project.
+
+**Multiple Environments:** `uv` makes it trivial to test against multiple Python versions, either by switching the main environment or by maintaining side-by-side environments using `UV_PROJECT_ENVIRONMENT`.
+{{% /details %}}
 
 ## Topics
 
 - `uv run`
-  - Project commands
-  - Tool commands
-- Running modules vs files
-- Entry points vs scripts
+  - `uv run something`
+  - `uv run ….py` -> `uv run python ….py`
+  - `uv run -m module`
+  - `uv run -` - run the Python from stdin
+
+- Where the environment comes from
+  - A venv is active (you should not do this)
+  - A `pyproject.toml` exists
+  - Outside of a project an ephemeral environment is being made (--script with inline metadata)
+  - `uv run https://some.site/script.py` is a thing
+
+  - uv run <uv parameters> thing-to-run <thing-to-run parameters>
+      - Project commands
+      - Tool commands
+
 - Editable installs
-  - Running the editable vs. running the installed (`uv tool install .`, more about that later)
+  - What does `editable` mean in Python, in `src` (`--package`) and in flat mode? 
+  - `uv run --no-editable` - what is the difference?
+
+- What is `uvx` and how is it used?
+
 - Tool execution
-  - `pytest`
-  - `ruff` (`ruff format`, `ruff check --fix`), replaces `black` and `pylint`
-  - `mypy` (to be replaced with `ty` in the future)
-- Why not call tools directly
-  - How to `pytest` multiple versions of Python
-- Reproducible execution across machines and CI
+  - Examples, typical: `uv run pytest`, `uv run ruff` (`ruff format src test`, `ruff check --fix src`), replaces `black` and `pylint`,`uv run mypy src` (to be replaced with `ty` in the future)
+  - Tool execution parameters (automatically supply `src` or `src test` or `--fix src` to calls)
+
+- Multiple environments
+  - Example: Running pytest for Python 3.12 and 3.13 of a codebase.
+  - Side-by-side environments with `UV_PROJECT_ENVIRONMENT`.
+
+# Running Code with `uv run`
+
+`uv run` is the Swiss Army knife of `uv`.
+It is the primary way to execute Python code, scripts, or project entrypoints while ensuring they run in the correct,
+isolated environment.
+
+The most important thing to remember about `uv run` is that **it is not just a wrapper**.
+It manages the environment *before* execution.
+If your environment is out of sync with your `pyproject.toml` or `uv.lock`,
+`uv run` will automatically perform a sync in the background before starting your program.
+
+This will automatically, quickly and invisibly ensure that your code runs in a fresh environment.
+
+## Ways to use `uv run`
+
+### `uv run <something>`
+
+If you run a command that isn't a Python script,
+`uv` looks for it in the virtual environment's `bin` (or `Scripts` on Windows) directory.
+You can't `uv run` a thing that wasn't specified and isn't installed.
+That's intentional, keep your project metadata up to date, keep OS dependencies out of the project.
+This is the only way to ensure consistency.
+
+In our `berlin-weather` project, we defined an entrypoint in `pyproject.toml`:
+```toml
+[project.scripts]
+berlin-weather = "berlin_weather.cli:main"
+```
+We can run this simply with:
+```bash
+uv run berlin-weather
+```
+`uv` ensures the `.venv` is up to date and then executes the `berlin-weather` script.
+
+### `uv run <script>.py`
+If the argument ends in `.py`, `uv` treats it as a Python script. It is effectively a shorthand for `uv run python <script>.py`.
+
+```bash
+uv run my_script.py
+```
+
+### `uv run -m <module>`
+Just like `python -m`, this runs an installed module as a script.
+```bash
+uv run -m json.tool blah.json
+```
+
+### `uv run -`
+You can pipe Python code directly into `uv run -`. This executes the code using the project's Python interpreter and environment.
+```bash
+echo "import httpx; print(httpx.__version__)" | uv run -
+```
+
+## Where the environment comes from
+
+One of the "magic" aspects of `uv run` is how it decides which environment to use.
+It follows a specific discovery hierarchy:
+
+Project Discovery
+: `uv` looks for a `pyproject.toml` in the current directory or any parent directory.
+If found, it uses the environment associated with that project (the `.venv` directory).
+
+Script Metadata
+: If you run `uv run script.py` and that script contains [PEP 723](https://peps.python.org/pep-0723/) inline metadata,
+`uv` creates a temporary, ephemeral environment just for that script.
+
+Remote Scripts
+: You can even run scripts directly from a URL:
+    ```bash
+    uv run https://raw.githubusercontent.com/astral-sh/uv/main/scripts/uv-elapsed.py
+    ```
+    `uv` will download the script, look for metadata, create an environment, and run it.
+
+> [!WARNING]
+> If a virtual environment is already "active" in your shell (e.g., via `source .venv/bin/activate`),
+> `uv run` will still prefer the environment it discovers via `pyproject.toml`.
+> It is generally recommended **not** to activate environments when using `uv`.
+
+## Argument Separation
+
+When using `uv run`, you often need to pass parameters to the command you are running.
+`uv` parameters must come after the `run` and before the command that `uv` is suppsed to run.
+
+To make things clearer, you can expressly end the `uv` parameters list usingthe double-dash `--` separator:
+
+```bash
+# uv run <uv params> -- <command> <command params>
+uv run --python 3.12 -- berlin-weather --verbose
+```
+In this example, `--python 3.12` is for `uv`, while `--verbose` is passed to the `berlin-weather` application.
+Usually this is not needed, 
+
+```bash
+uv run --python 3.12 berlin-weather --verbose
+```
+will work just the same.
+
+# Editable Installs
+
+By default, when you work within a project,
+`uv` installs your project into the virtual environment in **editable mode**.
+
+### What is "Editable"?
+
+In traditional Python, if you install a package, its files are copied into `site-packages`.
+If you change your source code, you have to reinstall the package to see the changes.
+
+An **editable install** (often called `pip install -e .`) creates a link (or a special `.pth` file)
+in `site-packages` that points back to your source directory.
+
+- **In `src` layout (`--package`):** `uv` handles the complexity of making the `src/berlin_weather` folder importable.
+  It does that by adding the `src` directory to `sys.path` (in fact, it adds the directory named in the `.pth` file to the search path, and this happens to be the `src` directory).
+- **In flat layout:** The current directory is made available.
+  This is dangerous, because it can lead to unexpected behavior if you have files with the same name as modules in your project.
+  That's one of multiple reasons why we discourage the use "flat" layout in Python and prefer the `src` layout created with `--package`. 
+
+An editable install means you can edit your code in `src/berlin_weather/
+cli.py` and immediately see the effect when you run `uv run berlin-weather`, without any re-installation step.
+
+### `uv run --no-editable`
+
+Sometimes you want to test your project as if it were a regular, non-editable installation (e.g.,
+to ensure you haven't forgotten to include a file in your package).
+
+```bash
+uv run --no-editable berlin-weather
+```
+
+This forces `uv` to build a temporary wheel of your project and install it properly into the environment,
+rather than linking to your source code.
+
+# Tool Execution and `uvx`
+
+Sometimes you want to run a tool (like `ruff` or `pytest`) that isn't necessarily a dependency of your project,
+or you want to run it without setting up a project at all.
+
+### What is `uvx`?
+
+`uvx` is a convenient shorthand for `uv tool run`. It is designed for one-off tool execution.
+
+```bash
+uvx ruff format .
+```
+
+When you run this:
+1.  `uv` creates an isolated, cached environment for `ruff`.
+2.  It installs `ruff` into that environment.
+3.  It executes the command.
+4.  The environment is kept in the cache for future use, but it doesn't clutter your project's `.venv`.
+
+### Common Tool Examples
+
+Inside a project, you typically use `uv run` for tools declared in your `dev` group:
+
+- **Testing:** `uv run pytest`
+- **Linting & Formatting:** 
+  - `uv run ruff format src` (Replaces `black`)
+  - `uv run ruff check --fix src` (Replaces `pylint` and `isort`)
+- **Type Checking:** `uv run mypy src`
+
+### Automatic Parameter Supply
+
+In many projects, you find yourself running the same long commands.
+While `uv` doesn't have a built-in "task runner" like `npm run`,
+it encourages the use of entrypoints or simple shell aliases.
+
+# Multiple Environments
+
+Because `uv` makes environment creation so cheap, you can easily test your code against multiple versions of Python.
+
+### Example: Multi-version testing
+
+If you want to ensure `berlin-weather` works on both Python 3.12 and 3.13:
+
+```bash
+uv run --managed-python --python 3.12 pytest
+uv run --managed-python --python 3.13 pytest
+```
+
+`uv` will create matching `.venv` states or cached environments for these calls,
+allowing you to switch back and forth instantly.
+This is a powerful way to verify compatibility without the complexity of managing multiple manual installations.
+
+### Side-by-side environments
+
+Sometimes, you don't want `uv` to overwrite your main `.venv` every time you switch Python versions.
+You might want to keep your development environment in `.venv` (e.g., using Python 3.13)
+while having separate, persistent environments for testing against other versions.
+
+You can achieve this by using the `UV_PROJECT_ENVIRONMENT` environment variable to point `uv` to a different directory:
+
+```bash
+# Create and sync the 3.12 environment
+UV_PROJECT_ENVIRONMENT=.venv-3.12 uv sync --managed-python --python 3.12 --all-groups
+
+# Create and sync the 3.13 environment
+UV_PROJECT_ENVIRONMENT=.venv-3.13 uv sync --managed-python --python 3.13 --all-groups
+
+# Run tests using the respective environments
+UV_PROJECT_ENVIRONMENT=.venv-3.12 uv run --managed-python --python 3.12 --all-groups pytest
+UV_PROJECT_ENVIRONMENT=.venv-3.13 uv run --managed-python --python 3.13 --all-groups pytest
+```
+
+By setting `UV_PROJECT_ENVIRONMENT`, you tell `uv` to use that specific directory instead of the default `.venv`.
+This allows you to keep multiple virtual environments side-by-side in the same project directory,
+and switching between them is as simple as changing the environment variable.
+The default `uv run --all-groups pytest` (without the variable) will still use your main `.venv` directory.

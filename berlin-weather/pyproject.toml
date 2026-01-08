@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Kristian Koehntopp", email = "kris-git@koehntopp.de" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
     "httpx>=0.28.1",
 ]
@@ -21,7 +21,8 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "mypy>=1.19.0",
+    "ruff>=0.14.10",
 ]
-schnork = [
-    "ruff>=0.14.9",
+test = [
+    "pytest>=9.0.2",
 ]
