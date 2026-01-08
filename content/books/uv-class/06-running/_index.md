@@ -19,38 +19,6 @@ description: |
 **Multiple Environments:** `uv` makes it trivial to test against multiple Python versions, either by switching the main environment or by maintaining side-by-side environments using `UV_PROJECT_ENVIRONMENT`.
 {{% /details %}}
 
-## Topics
-
-- `uv run`
-  - `uv run something`
-  - `uv run ….py` -> `uv run python ….py`
-  - `uv run -m module`
-  - `uv run -` - run the Python from stdin
-
-- Where the environment comes from
-  - A venv is active (you should not do this)
-  - A `pyproject.toml` exists
-  - Outside of a project an ephemeral environment is being made (--script with inline metadata)
-  - `uv run https://some.site/script.py` is a thing
-
-  - uv run <uv parameters> thing-to-run <thing-to-run parameters>
-      - Project commands
-      - Tool commands
-
-- Editable installs
-  - What does `editable` mean in Python, in `src` (`--package`) and in flat mode? 
-  - `uv run --no-editable` - what is the difference?
-
-- What is `uvx` and how is it used?
-
-- Tool execution
-  - Examples, typical: `uv run pytest`, `uv run ruff` (`ruff format src test`, `ruff check --fix src`), replaces `black` and `pylint`,`uv run mypy src` (to be replaced with `ty` in the future)
-  - Tool execution parameters (automatically supply `src` or `src test` or `--fix src` to calls)
-
-- Multiple environments
-  - Example: Running pytest for Python 3.12 and 3.13 of a codebase.
-  - Side-by-side environments with `UV_PROJECT_ENVIRONMENT`.
-
 # Running Code with `uv run`
 
 `uv run` is the Swiss Army knife of `uv`.
@@ -89,7 +57,7 @@ uv run berlin-weather
 If the argument ends in `.py`, `uv` treats it as a Python script. It is effectively a shorthand for `uv run python <script>.py`.
 
 ```bash
-uv run my_script.py
+uv run whoami.py
 ```
 
 ### `uv run -m <module>`
@@ -258,3 +226,119 @@ By setting `UV_PROJECT_ENVIRONMENT`, you tell `uv` to use that specific director
 This allows you to keep multiple virtual environments side-by-side in the same project directory,
 and switching between them is as simple as changing the environment variable.
 The default `uv run --all-groups pytest` (without the variable) will still use your main `.venv` directory.
+
+### Simplifying multi-environment commands
+
+Currently, `uv` does not have a built-in way to define these side-by-side environments in `pyproject.toml` or `uv.toml`.
+If you find yourself frequently typing these long commands, the recommended approach is to use shell aliases,
+a `Makefile`, or a task runner like `just`.
+
+#### Option 1: Shell Aliases
+Add these to your `.bashrc` or `.zshrc`:
+
+```bash
+alias uv-test-312='UV_PROJECT_ENVIRONMENT=.venv-3.12 uv run --managed-python --python 3.12 --all-groups'
+alias uv-test-313='UV_PROJECT_ENVIRONMENT=.venv-3.13 uv run --managed-python --python 3.13 --all-groups'
+```
+
+Now you can simply run:
+```bash
+uv-test-312 pytest
+```
+
+#### Option 2: A simple `Makefile`
+Create a `Makefile` in your project root:
+
+```make
+.PHONY: test-312 test-313 test-all
+
+test-312:
+	UV_PROJECT_ENVIRONMENT=.venv-3.12 uv run --managed-python --python 3.12 --all-groups pytest
+
+test-313:
+	UV_PROJECT_ENVIRONMENT=.venv-3.13 uv run --managed-python --python 3.13 --all-groups pytest
+
+test-all: test-312 test-313
+```
+
+Then run `make test-all` to test against both versions.
+
+# Scripts
+
+Python has a way to specify dependencies inline in scripts, initially defined in 
+[PEP-723](https://peps.python.org/pep-0723/) and now maintained in
+[Inline Script Metadata](https://packaging.python.org/en/latest/specifications/inline-script-metadata/#inline-script-metadata).
+
+`uv` can work with such inline script metadata.
+Do make it do so, provide the option `--script`.
+
+## Example script
+
+```python
+#!/usr/bin/env python3
+# Script at /whoami/whoami.py in this repository, https://github.com/isotopp/uv-class
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "httpx>=0.26",
+# ]
+# ///
+
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+import httpx
+
+def main() -> None:
+    with httpx.Client(timeout=10.0) as client:
+        r = client.get("https://httpbin.org/get")
+        r.raise_for_status()
+
+    print(f"Your apparent IP: {r.json().get('origin', 'unknown')}")
+
+if __name__ == "__main__":
+    main()
+```
+
+This short program calls `https://httpbin.org/get` to get the current IP.
+
+Running this script without `uv` or without the `/// script` header results in an error due to `httpx` missing.
+
+```
+$ uv run whoami.py
+Traceback (most recent call last):
+  File "~/Source/uv-class/whoami/whoami.py", line 5, in <module>
+    import httpx
+ModuleNotFoundError: No module named 'httpx'
+```
+
+With the metadata block present, `uv` autodetects the metadata block (or we provide `--script`)
+and creates an ephemeral virtual environment with `httpx` installed.
+
+```
+$ uv run --verbose whoami.py
+DEBUG uv 0.9.21 (0dc9556ad 2025-12-30)
+DEBUG Acquired shared lock for `~/.cache/uv`
+DEBUG Reading inline script metadata from `whoami.py`
+DEBUG Acquired exclusive lock for `~/Source/uv-class/whoami/whoami.py`
+DEBUG No Python version file found in ancestors of working directory: ~/Source/uv-class/whoami
+DEBUG Using Python request Python >=3.11 from `requires-python` metadata
+DEBUG Checking for Python environment at: `~/.cache/uv/environments-v2/whoami-0492c73d0afa970a`
+DEBUG The script environment's Python version satisfies the request: `Python >=3.11`
+DEBUG Released lock at `/var/folders/dn/vtkw12w17qv7cqw5yj6lmgjh0000gn/T/uv-0492c73d0afa970a.lock`
+DEBUG Acquired exclusive lock for `~/.cache/uv/environments-v2/whoami-0492c73d0afa970a`
+DEBUG All requirements satisfied: anyio | certifi | h11>=0.16 | httpcore==1.* | httpx>=0.26 | idna | idna>=2.8
+DEBUG Released lock at `~/.cache/uv/environments-v2/whoami-0492c73d0afa970a/.lock`
+DEBUG Using Python 3.14.2 interpreter at: ~/.cache/uv/environments-v2/whoami-0492c73d0afa970a/bin/python3
+DEBUG Running `python whoami.py`
+DEBUG Spawned child 28443 in process group 28442
+Your apparent IP: 62.166.154.224
+DEBUG Command exited with code: 0
+DEBUG Released lock at `~/.cache/uv/.lock`
+```
+
+The line `DEBUG Reading inline script metadata from whoami.py` shows us that the metadata block is autodetected.
+
+The line `DEBUG Checking for Python environment at: ~/.cache/uv/environments-v2/whoami-0492c73d0afa970a` 
+shows us that `uv` is looking for a Python environment in the cache directory.
+This environment is kept stable and is re-used,
+but is transient in the sense that `uv` can decide to trash and rebuilt it with a different name any time.
