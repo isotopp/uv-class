@@ -1,6 +1,6 @@
 ---
 title: "Project hygiene and collaboration"
-weight: 70
+weight: 570
 date: 2025-12-22T00:00:00Z
 description: |
   Project hygiene and collaboration
