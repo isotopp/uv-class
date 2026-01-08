@@ -301,6 +301,8 @@ if __name__ == "__main__":
 
 This short program calls `https://httpbin.org/get` to get the current IP.
 
+## Running a script
+
 Running this script without `uv` or without the `/// script` header results in an error due to `httpx` missing.
 
 ```
@@ -331,7 +333,7 @@ DEBUG Released lock at `~/.cache/uv/environments-v2/whoami-0492c73d0afa970a/.loc
 DEBUG Using Python 3.14.2 interpreter at: ~/.cache/uv/environments-v2/whoami-0492c73d0afa970a/bin/python3
 DEBUG Running `python whoami.py`
 DEBUG Spawned child 28443 in process group 28442
-Your apparent IP: 62.166.154.224
+Your apparent IP: 5.166.154.224
 DEBUG Command exited with code: 0
 DEBUG Released lock at `~/.cache/uv/.lock`
 ```
@@ -342,3 +344,70 @@ The line `DEBUG Checking for Python environment at: ~/.cache/uv/environments-v2/
 shows us that `uv` is looking for a Python environment in the cache directory.
 This environment is kept stable and is re-used,
 but is transient in the sense that `uv` can decide to trash and rebuilt it with a different name any time.
+
+## Running a URL
+
+We can even decide to run this script as a URL:
+
+```console
+$ uv run -v uv run -v 'https://raw.githubusercontent.com/isotopp/uv-class/refs/heads/main/whoami/whoami.py'
+DEBUG uv 0.9.21 (0dc9556ad 2025-12-30)
+DEBUG Acquired shared lock for `/Users/kris/.cache/uv`
+DEBUG Reading inline script metadata from remote URL
+DEBUG Acquired exclusive lock for `https://raw.githubusercontent.com/isotopp/uv-class/refs/heads/main/whoami/whoami.py`
+DEBUG No Python version file found in ancestors of working directory: /Users/kris/Source/uv-class/whoami
+DEBUG Using Python request Python >=3.11 from `requires-python` metadata
+DEBUG Checking for Python environment at: `/Users/kris/.cache/uv/environments-v2/ed6cf9cb4d875881`
+DEBUG The script environment's Python version satisfies the request: `Python >=3.11`
+DEBUG Released lock at `/var/folders/dn/vtkw12w17qv7cqw5yj6lmgjh0000gn/T/uv-ed6cf9cb4d875881.lock`
+DEBUG Acquired exclusive lock for `/Users/kris/.cache/uv/environments-v2/ed6cf9cb4d875881`
+DEBUG All requirements satisfied: anyio | certifi | h11>=0.16 | httpcore==1.* | httpx>=0.28 | idna | idna>=2.8
+DEBUG Released lock at `/Users/kris/.cache/uv/environments-v2/ed6cf9cb4d875881/.lock`
+DEBUG Using Python 3.14.2 interpreter at: /Users/kris/.cache/uv/environments-v2/ed6cf9cb4d875881/bin/python3
+DEBUG Running `python -c`
+DEBUG Spawned child 28888 in process group 28886
+Your apparent IP: 5.166.154.224
+DEBUG Command exited with code: 0
+DEBUG Released lock at `/Users/kris/.cache/uv/.lock`
+```
+
+This is very powerful, and also dangerous (in CI or production).
+It will download arbitrary Python code from the network, install any dependencies requested
+and then run that code.
+There is no way to specifically disable this feature.
+You can `uv run --offline ...` or `UV_OFFLINE=1 uv run ...` to disable any network access,
+but there is no way to just disable uv-running a URL.
+
+## Making a persistent `.venv` for a script
+
+```
+uv venv
+uv export --script whoami.py | uv pip sync -
+```
+
+The first command creates a `.venv` directory (optionally using options such as `--managed-python` and `--python 3.12`).
+The second command takes the metadata from the script and generates a lockfile that is written to stdout.
+The `uv pip` subcommand `sync` reads that and processes it, installing the dependencies into the `.venv`.
+
+``` 
+$ uv venv
+Using CPython 3.14.2
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+$ uv export --script whoami.py | uv pip sync -
+Resolved 7 packages in 6ms
+Resolved 6 packages in 1ms
+Installed 6 packages in 5ms
+ + anyio==4.12.1
+ + certifi==2026.1.4
+ + h11==0.16.0
+ + httpcore==1.0.9
+ + httpx==0.28.1
+ + idna==3.11
+$ ./.venv/bin/python whoami.py
+Your apparent IP: 5.166.154.224
+```
+
+This is not a recommended way for handling an execution environment with `uv`,
+but some tooling requires a local virtual environment with a fixed name, and this is a good way to create it.
+Long term the tooling needs fixing, though.
