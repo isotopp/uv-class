@@ -44,6 +44,10 @@ description: |
   - `--no-dev`
   - `--only-group <name>`
   - Layer caching strategies
+- Installation
+  - Installer options: `--link-mode`, `--reinstall`, `--compile-bytecode`
+  - Cache options: `--no-cache`, `--refresh`
+  - Python discovery and `--managed-python`
 
 # Python Projects and Dependencies
 
@@ -257,3 +261,92 @@ and use this as a base layer for the "dependencies first install" outlines above
 
 By combining these flags, you can ensure that your CI environments get exactly the test tools they need,
 while your production images remain lean and focused.
+
+# Installation
+
+While `uv sync` is the primary command to ensure your environment matches your lockfile,
+several options control *how* that installation happens.
+These options are crucial for optimizing performance, managing disk space,
+and ensuring reliability in different environments.
+
+## Installer Options
+
+These flags control the mechanics of how packages are placed into your `.venv`.
+
+### `--link-mode`
+
+`uv` uses a global cache to avoid downloading the same packages repeatedly. The `--link-mode` option determines how packages are moved from this cache into your project's `site-packages`:
+
+- `clone` (default on macOS): Uses "copy-on-write" clones.
+  It's fast and doesn't take extra disk space, but allows the OS to separate files if they are modified.
+  It requires that the cache directory is on the same filesystem as the `.venv`.
+  That means it will not work with the user home on the internal disk, and the work directory on an external USB or network drive.
+- `hardlink` (default on Linux/Windows): Creates hard links.
+  Extremely fast and uses zero additional space, but files are shared across all environments.
+  But the `.venv` and the cache must be on the same filesystem for this to work.
+- `copy`: Physically copies the files.
+  Slower and uses more disk space, but ensures the environment is completely independent of the cache.
+- `symlink`: Creates symbolic links.
+  Fast, but dangerous: if you clear the `uv` cache, your virtual environments will break because the target files are gone.
+  Use of this mode is discouraged.
+
+### `--reinstall` and `--reinstall-package`
+
+- `--reinstall`: Forces `uv` to reinstall all packages even if they are already present. This is a "nuclear option" for fixing a corrupted environment.
+- `--reinstall-package <name>`: Reinstalls only the specified package.
+
+### `--compile-bytecode`
+
+By default, Python compiles `.py` files to `.pyc` bytecode lazily (the first time they are imported).
+Using `--compile-bytecode` during `uv sync` forces this compilation for all packages immediately.
+
+- **Pros**: Faster application startup time.
+- **Cons**: Longer installation time.
+- **Usage**: Highly recommended for Docker images and CLI tools where startup latency matters.
+
+## Cache Options
+
+The `uv` cache is the heart of its speed.
+See where it is located with `uv cache dir`.
+By default, on MacOS and Linux, `$HOME/.cache/uv`.
+
+- `--no-cache`: Tells `uv` to ignore the global cache entirely for the current operation. 
+  - **In Docker**: Use this to keep your image small if you aren't using a persistent cache mount.
+  - **Debugging**: Use this to rule out cache corruption issues.
+- `--refresh`: Invalidates all cached data and re-downloads everything.
+- `--refresh-package <name>`: Refreshes the cache for a specific package.
+
+In a normal development workflow, you rarely need these.
+But in a CI/CD pipeline,
+`--refresh` ensures you are getting the absolute latest files if a package was re-published with the same version 
+(which shouldn't happen, but sometimes does in private registries).
+
+## Python Discovery and Managed Python
+
+`uv` needs a Python interpreter to create a virtual environment.
+It will use locally installed python versions (e.g. system python or homebrew installed python) if found.
+
+It searches for one in this order:
+1. An active virtual environment (e.g., if you set `VIRTUAL_ENV`).
+2. A `.python-version` file in the current or parent directory.
+3. The `requires-python` constraint in `pyproject.toml`.
+4. System-wide installations (Path, Homebrew, etc.).
+
+With `--managed-python` it does not do that, but installs a specific, known build of Python.
+This ensures that everyone on the team uses the exact same interpreter.
+
+### `--managed-python`
+
+We strongly recommend using `uv` to manage your Python versions (`--managed-python`).
+
+- **Reproducibility**: `uv` downloads specific, known builds of Python, ensuring everyone on the team uses the exact same interpreter.
+- **Isolation**: It avoids the "polluted" system Python which might have OS-specific packages installed.
+
+**The Python Build Standalone Caveat**:
+The
+[`python-build-standalone`](https://github.com/astral-sh/python-build-standalone)
+project used by `uv` to build managed Python versions does not include the `tkinter` module by default.
+This is because it is not a cross-platform solution and requires the system's Tcl/Tk libraries to be installed.
+If your application requires a GUI built with `tkinter`,
+you might need to use a "local" Python (like one installed via Homebrew or a system installer, plus `python-tk`)
+that is linked against your OS's windowing system.
