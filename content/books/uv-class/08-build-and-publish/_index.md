@@ -18,30 +18,14 @@ description: |
 **Best Practices:** Always verify builds locally, use version control for tags, and prefer Trusted Publishing in CI/CD environments.
 {{% /details %}}
 
-This chapter explains advanced lifecycle stages without overwhelming detail.
-Students learn what building means, what wheels are, how build backends work, and when publishing is appropriate.
-
-The focus is conceptual correctness, not procedural depth.
-
-## Topics
-
-- What “building” means
-- Wheels and source distributions
-- Build backends
-  - Frontend vs backend
-  - Why backends exist
-- Native extensions overview
-- `uv build`
-- Publishing packages
-  - When and what to publish
-  - When not to
-- `uv publish`
-
 # What "building" means
 
-In the Python world, "building" a project refers to the process of turning your source code into a standardized, distributable format that others can easily install. This is the bridge between "code on your machine" and "a package on PyPI."
+In the Python world, "building" a project refers to the process of turning your source code into a standardized,
+distributable format that others can easily install.
+This is the bridge between "code on your machine" and "a package on PyPI."
 
-When you build a project, you typically produce two types of artifacts: **Source Distributions (sdists)** and **Binary Distributions (wheels)**.
+When you build a project, you typically produce two types of artifacts: **Source Distributions (sdists)** 
+and **Binary Distributions (wheels)**.
 
 ## Wheels and Source Distributions
 
@@ -53,26 +37,36 @@ An `sdist` is essentially a snapshot of your source code (usually a `.tar.gz` fi
 ### Wheels (wheel)
 A wheel is a built, "ready-to-install" format (a `.whl` file). It is essentially a ZIP archive with a specific structure.
 - **Pros:** Installation is nearly instantaneous (just unpacking). No compiler is needed on the user's machine.
-- **Cons:** For projects with native code, you must build and provide different wheels for every platform (Linux, macOS, Windows) and architecture (x86_64, ARM64) you want to support.
+- **Cons:** For projects with native code, you must build and provide different wheels for every platform (Linux, macOS,
+Windows) and architecture (x86_64, ARM64) you want to support.
 
 # Build Backends
 
 Python uses a "frontend/backend" architecture for packaging, defined in [PEP 517](https://peps.python.org/pep-0517/).
 
 ### Frontend vs. Backend
-- **The Frontend (`uv`):** This is the tool you interact with. `uv` handles the environment, downloads dependencies, and calls the backend.
-- **The Backend:** This is the tool that actually knows how to pack your files into a wheel or sdist. Common backends include `hatchling`, `setuptools`, `flit`, and `pdm-backend`.
+- **The Frontend (`uv`):** This is the tool you interact with. `uv` handles the environment, downloads dependencies, 
+and calls the backend.
+- **The Backend:** This is the tool that actually knows how to pack your files into a wheel or sdist. 
+Common backends include `hatchling`, `setuptools`, `maturin`, and `scikit_build`.
 
 ### Why backends exist
-Backends exist because different projects have different needs. A pure Python project might use a simple backend like `hatchling`, while a high-performance project with C++ code might use `scikit-build-core` or `meson-python`.
+Backends exist because different projects have different needs. 
+A pure Python project might use a simple backend like `hatchling`, 
+while a high-performance project with C++ code might use `scikit-build-core` or `meson-python`.
 
-By separating the frontend from the backend, `uv` can support any build system without having to know the specifics of how every language or compiler works.
+By separating the frontend from the backend,
+`uv` can support any build system without having to know the specifics of how every language or compiler works.
 
 # Native Extensions Overview
 
-Some Python packages aren't just Python. They contain "native extensions" written in languages like C, C++, or Rust to achieve performance that Python alone cannot provide.
+Some Python packages aren't just Python.
+They contain "native extensions" written in languages like C, C++,
+or Rust to achieve performance that Python alone cannot provide.
 
-When `uv` encounters a project with native extensions, its role remains the same: it provides the isolated build environment and the necessary tools (like `cmake` or `cargo`), then lets the specialized backend handle the compilation.
+When `uv` encounters a project with native extensions, its role remains the same:
+it provides the isolated build environment and the necessary tools (like `cmake` or `cargo`),
+then lets the specialized backend handle the compilation.
 
 # `uv build`
 
@@ -117,12 +111,19 @@ uv publish
 By default, it looks for files in the `dist/` directory and attempts to upload them to PyPI.
 
 ### Authentication and Best Practices
-For security, you should avoid using your raw PyPI password. Instead, use:
-1. **API Tokens:** Generate a scoped token on PyPI and use it with `--token`.
-2. **Trusted Publishing:** If you are using GitHub Actions, `uv` supports "Trusted Publishing," which uses OIDC tokens to authenticate without needing any secrets stored in your repository.
+
+For security, you should avoid using your raw PyPI password. 
+Instead, use:
+1. **API Tokens:** Generate a scoped token on PyPI *per project* and use it with `--token`.
+Using a different token per project allows you to scope things appropriately,
+and also prevents you from mistakenly publishing code to the wrong project.
+2. **Trusted Publishing:** If you are using GitHub Actions, `uv` supports "Trusted Publishing,"
+which uses OIDC tokens to authenticate without needing any secrets stored in your repository.
 
 ### Preventing Duplicates
-`uv publish` is "idempotent" if you use the `--check-url` flag (or the `--index` shorthand). If a file with the exact same name and content already exists on the server, `uv` will skip it instead of erroring. This is extremely useful for retrying failed CI jobs.
+`uv publish` is "idempotent" if you use the `--check-url` flag (or the `--index` shorthand).
+If a file with the exact same name and content already exists on the server, `uv` will skip it instead of erroring.
+This is extremely useful for retrying failed CI jobs.
 
 Example of a robust publish command:
 ```bash
