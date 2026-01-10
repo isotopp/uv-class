@@ -130,3 +130,41 @@ Example of a robust publish command:
 uv publish --index pypi
 ```
 (This assumes you have configured `pypi` in your `uv.toml` with the appropriate `publish-url`).
+
+# Exercises
+
+## 1. What "building" means
+- **Reproduction:** What are the two primary types of distribution artifacts produced when building a Python project?
+- **Reproduction:** Briefly explain the main advantage of a wheel over a source distribution (sdist) for the end-user.
+- **Application:** You are developing a library that includes a small C extension. Why is it important to provide wheels for multiple platforms, and what happens if a user on an unsupported platform tries to install your package from an sdist?
+- **Application:** Run `uv build` on a sample project and look at the `dist/` directory. Identify which file is the wheel and which is the sdist based on their file extensions and naming conventions.
+
+## 2. Build Backends
+- **Reproduction:** What is the relationship between a "frontend" like `uv` and a "backend" like `hatchling`?
+- **Reproduction:** Which PEP defined the frontend/backend architecture for Python packaging?
+- **Application:** If you wanted to build a project that uses Rust for performance-critical parts, which build backend might you choose instead of the default `uv_build` or `hatchling`?
+- **Application:** Find the `[build-system]` section in your project's `pyproject.toml` file. Explain what the `build-backend` key specifies and why it is necessary for the build process.
+
+## 3. Native Extensions Overview
+- **Reproduction:** Why would a Python developer choose to write a native extension in C or Rust instead of pure Python?
+- **Reproduction:** What is the role of `uv` when it encounters a project that requires a native compilation step?
+- **Application:** A colleague is trying to install a package with a C extension from an sdist but is getting "compiler not found" errors. Explain why this is happening and how providing a wheel would solve the issue.
+- **Application:** Research how `uv` interacts with tools like `cmake` or `cargo` during a build. How does it ensure the build environment is isolated from your system's global tools?
+
+## 4. `uv build`
+- **Reproduction:** What are the main steps `uv` takes when you run the `uv build` command?
+- **Reproduction:** By default, where does `uv build` place the resulting artifacts?
+- **Application:** Write a command that builds *only* the source distribution of your project and places it in a custom directory named `releases/`.
+- **Application:** You want to verify that your package installs correctly without relying on your local source code. How can you use `uv run` and the `--no-editable` flag to test the built artifact before publishing?
+
+## 5. Publishing Packages
+- **Reproduction:** Name two situations where you should *not* publish a package to the public PyPI.
+- **Reproduction:** Why is it considered a best practice to publish both an sdist and a wheel?
+- **Application:** You have just finished a new version of your library. Before running `uv publish`, what testing step should you perform to ensure the built wheel is functional?
+- **Application:** Explain the difference between publishing to the public PyPI and using a private registry (like a company-internal Artifactory or Nexus) for internal tools.
+
+## 6. `uv publish`
+- **Reproduction:** What is "Trusted Publishing," and how does it improve security in CI/CD environments like GitHub Actions?
+- **Reproduction:** How does the `--check-url` flag help when running `uv publish` in a CI job that might be retried after a partial failure?
+- **Application:** Write a robust `uv publish` command that uses a specific index and ensures that duplicate uploads don't cause the command to fail.
+- **Application:** You are using API tokens for authentication. Why is it better to use a "scoped" token (restricted to a single project) rather than a global account-wide token?

@@ -102,7 +102,10 @@ Migrating from `Poetry` is even easier because `Poetry` already uses `pyproject.
 
 # Judgment over Tool Worship
 
-The goal of this book isn't to make you a "`uv` fan." It's to make you a more productive Python developer. 
+The goal of this book isn't to make you a "`uv` fan."
+Using `uv` alone will do that.
+:-)
+It's to make you a more productive Python developer. 
 
 The "uv way" is about:
 - **Reducing Friction:** Spend less time fighting environments and more time writing code.
@@ -110,3 +113,29 @@ The "uv way" is about:
 - **Embracing Standards:** Stick to PEP-compliant configurations so your project remains portable.
 
 Whether you use `uv`, `Poetry`, or `pip`, the principles of **isolation**, **reproducibility**, and **declarative intent** remain the most important tools in your belt.
+
+# Exercises
+
+## 1. `uv` vs. `pip` + `venv`
+- **Reproduction:** Name two tools that are often required in a traditional `pip` + `venv` workflow to achieve reproducibility, which `uv` replaces natively.
+- **Reproduction:** How does `uv` handle Python version management compared to the traditional `pip` + `venv` approach?
+- **Application:** A developer is tired of manually activating virtual environments. Explain how `uv run` changes this workflow.
+- **Application:** Compare the speed and caching mechanisms of `pip` versus `uv` when dealing with large dependency trees.
+
+## 2. `uv` vs. `Poetry`
+- **Reproduction:** What is the primary difference between `Poetry` and `uv` regarding where virtual environments are stored by default?
+- **Reproduction:** How do `Poetry` and `uv` differ in their adherence to modern PEP standards (like PEP 621) for `pyproject.toml`?
+- **Application:** A project uses a complex set of legacy `poetry.lock` files. Can `uv` use these files directly? Explain why or why not.
+- **Application:** Compare the dependency resolution performance of `Poetry` and `uv` in large-scale projects based on the comparison table in this chapter.
+
+## 3. When `uv` is sufficient
+- **Reproduction:** List three scenarios where `uv` is considered sufficient for a Python project's lifecycle.
+- **Reproduction:** When might you still need a tool like `make` or `just` alongside `uv`?
+- **Application:** You are working on a project that requires `ffmpeg` and `libxml2`. Explain why `uv` alone is not enough to manage these dependencies and what type of tool you should use instead.
+- **Application:** A data science project requires specific GPU drivers and C libraries to be perfectly versioned with Python. Why might `conda` or `mamba` be a preferred choice over `uv` in this specific case?
+
+## 4. Migration Principles
+- **Reproduction:** What is the first command you should run when migrating a `pip`-based project to `uv`?
+- **Reproduction:** When migrating from `Poetry`, which section of the `pyproject.toml` contains the metadata that must be moved to the standard `[project]` section?
+- **Application:** You have a legacy `requirements.txt` and a `requirements-dev.txt`. Show the `uv` commands to import both into a new `uv` project with appropriate grouping.
+- **Application:** After translating `pyproject.toml` metadata from a `Poetry` project, what is the final step to ensure the environment is correctly set up and verified with `uv`?

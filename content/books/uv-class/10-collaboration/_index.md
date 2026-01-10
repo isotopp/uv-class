@@ -1,6 +1,6 @@
 ---
 title: "Project hygiene and collaboration"
-weight: 90
+weight: 100
 date: 2026-01-10T00:00:00Z
 description: |
   Project hygiene and collaboration
@@ -206,3 +206,35 @@ A checklist of what a PR needs before it can be considered complete:
 - Documentation updated (following Diátaxis).
 - `uv.lock` is updated.
 - No new linting warnings.
+
+## Exercises
+
+### 1. Project structure
+- **Reproduction:** List the three standard top-level directories in a well-structured Python project and their purposes.
+- **Reproduction:** What are the three critical "control files" created by `uv` at the root of a project, and what does each define?
+- **Application:** You have a project where your tests are currently inside `src/my_package/tests/`. Explain why this is problematic according to the chapter and where you should move them.
+- **Application:** Given a `uv` project, identify which file you would modify to change the project's metadata (e.g., its version or authors) and which file you should check to see the exact, resolved versions of its dependencies.
+
+### 2. `.gitignore`
+- **Reproduction:** Why should the `.venv/` directory never be committed to a version control system?
+- **Reproduction:** Explain the purpose of the `!` character in a `.gitignore` file pattern.
+- **Application:** A team member accidentally commits a large `.env` file containing database credentials. Explain the steps needed to fix this in the `.gitignore` and why simply adding the file to `.gitignore` after it has been committed is not enough.
+- **Application:** Write a `.gitignore` pattern that ignores all files with the `.bak` extension in the entire project, but ensures that a specific file named `important_template.bak` in the root directory is still tracked.
+
+### 3. Documentation
+- **Reproduction:** Name the four quadrants of the Diátaxis framework and the primary "intent" of each.
+- **Reproduction:** What is the psychological difference between "Recall" and simply reading information, and why is the former preferred for durable learning?
+- **Application:** You are tasked with writing a page titled "How to set up a private PyPI index." According to Diátaxis, which quadrant does this belong to, and should you include extensive theoretical explanations about how indices work on this page?
+- **Application:** You are designing an exercise that asks a student to "Design a deployment strategy for a multi-stage Docker build." According to Bloom's Taxonomy, is this a "Reproduction," "Application," or "Transfer" level task? Justify your answer.
+
+### 4. Writing a good `README.md`
+- **Reproduction:** List at least five essential sections that every good `README.md` should contain.
+- **Reproduction:** Why is the `README.md` described as the "User Interface" of a project?
+- **Application:** Critique a `README.md` that consists only of a single `uv sync` command. What critical information is missing for a developer who wants to understand what the project actually *is*?
+- **Application:** You are starting a new project. Draft a minimal "What it is" and "Quick Start" section for its `README.md`.
+
+### 5. `AGENTS.md`
+- **Reproduction:** What is an `AGENTS.md` file, and why is it becoming increasingly important in modern software development?
+- **Reproduction:** List two examples of "Automation Policies" that might be defined in an `AGENTS.md`.
+- **Application:** Your team uses an AI agent to help with refactoring. Write a sample rule for an `AGENTS.md` file that specifies what the agent is allowed to do regarding code formatting and which tool it must use as the source of truth.
+- **Application:** Explain why a "Definition of Done" in `AGENTS.md` is particularly useful for automated agents compared to human developers.

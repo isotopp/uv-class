@@ -1,6 +1,6 @@
 ---
 title: "Using uv to extend Python with C-code"
-weight: 100
+weight: 90
 date: 2026-01-06T00:00:00Z
 description: |
   A walkthrough of a `uv` usage, here to extend Python with two C functions.
@@ -27,7 +27,7 @@ Our project is called `helloext`.
 It will use Python 3.12, and we will be using `--managed-python`.
 We are using the usual `--package` structure, because what we want to write is a package, just written in C.
 
-```bash
+```
 mkdir helloext
 cd helloext
 uv init --package --managed-python --python 3.12
@@ -613,3 +613,15 @@ We can then `import` the C-module and use it.
 We have tooling to drive the C build, but this part of the build is not managed by `uv`,
 so it is our responsibility to drive the C part of the build.
 This includes providing the compiler, the includes and SDKs or other parts of the Non-Python build.
+
+# Exercises
+
+## 1. Extensions
+- **Reproduction:** When initializing the `helloext` project, which `uv init` flag is used to establish the `src` layout, and why is this layout preferred for packages?
+- **Reproduction:** In the `pyproject.toml` file for a `scikit-build-core` project, what are the two keys required in the `[build-system]` table to define the frontend/backend relationship?
+- **Application:** You want to see the detailed output of the C compiler and CMake during the build process. Which option should you add or uncomment in the `[tool.scikit-build]` section of your `pyproject.toml`?
+- **Application:** After running `uv build`, you have a `.whl` file in the `dist/` directory. Provide a command-line example of how you can inspect the contents of this wheel to verify that the compiled `_hello.so` file is correctly packaged inside the `helloext` directory.
+- **Transfer:** Your team is deciding whether to implement a new high-performance module in C using `scikit-build-core` or in Rust using `maturin`. 
+    - Outline how the `[build-system]` configuration in `pyproject.toml` would differ between these two choices.
+    - Identify which parts of the build stack `uv` manages (e.g., build isolation, Python dependencies) and which parts remain the developer's responsibility to provide on the host system (e.g., compilers, linker, system SDKs).
+    - Discuss how `uv` handles the "freshness" of native code compared to pure Python code, and why commands like `uv sync --reinstall-package` are relevant in this workflow.

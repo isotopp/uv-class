@@ -17,6 +17,14 @@ description: |
 **TOML Basics:** uv uses TOML for configuration. It supports basic types (strings, integers, booleans), tables for organization, and arrays of tables for lists of objects.
 {{% /details %}}
 
+## Topics
+
+- What `uv` can do: A high-level overview of capabilities.
+- Getting help: Navigating the built-in documentation and pagers.
+- Verbose output: Using flags to see more detail.
+- Common options: Global flags for cache, Python discovery, and configuration.
+- TOML basics: Understanding the configuration format used by `uv`.
+
 # What uv can do
 
 `uv` is a versatile tool designed to handle almost every aspect of Python development.
@@ -241,3 +249,45 @@ url = "https://test.pypi.org/simple"
 
 This is how `uv` handles multiple package indexes or complex dependency groups.
 Every `[[index]]` block adds another index to the list.
+
+# Exercises
+
+## 1. What uv can do
+- **Reproduction:** Name three different categories of tasks that `uv` can manage besides project dependencies.
+- **Reproduction:** What command would you use to see a tree of your project's dependencies?
+- **Application:** You want to run a one-off tool that isn't in your project. Which `uv` command is specifically designed for this, and what happens to the environment after the tool finishes?
+- **Application:** How would you use `uv` to check if a new version of the `uv` executable itself is available and install it?
+
+## 2. Getting help
+- **Reproduction:** What is the difference between `uv --help` and `uv help <command>`?
+- **Reproduction:** How does `uv` decide whether to use a pager (like `less`) for its help output?
+- **Application:** Write a command that displays the help for `uv sync` but forces the output to be displayed without a pager.
+- **Application:** You are looking for a specific option in the help text of `uv run`. How can you paginate the output so you can search or scroll through it easily on a Unix-like system?
+
+## 3. Verbose output
+- **Reproduction:** Which flag is used to increase the verbosity of `uv`'s output?
+- **Reproduction:** How do you get even more detailed information if the single verbose flag isn't enough?
+- **Application:** Run a command like `uv python list -v`. What kind of additional information does `uv` provide that isn't in the standard output?
+- **Application:** Explain a situation where using `-vv` might be helpful when `uv` is failing to resolve a dependency.
+
+## 4. Common options
+- **Reproduction:** Where in the help output are "Common options" typically listed?
+- **Reproduction:** What does the `--offline` flag do, and what does it force `uv` to rely on?
+- **Application:** You want to ensure `uv` uses a specific directory for its cache for a single command. Which flag would you use, and how would the command look?
+- **Application:** Write a command that runs `uv sync` for a project located in `../other-project/` without first changing your current working directory in the shell.
+
+## 5. TOML basics
+- **Reproduction:** What are the basic data types supported by TOML mentioned in this chapter?
+- **Reproduction:** In TOML, what is the difference between a single bracket `[table]` and double brackets `[[table]]`?
+- **Application:** Convert the following JSON object into its TOML equivalent:
+  ```json
+  {
+    "tool": {
+      "uv": {
+        "managed": true,
+        "python": "3.12"
+      }
+    }
+  }
+  ```
+- **Application:** You need to add multiple package indexes to your configuration. Show the TOML structure required to define an array of two index objects, each having a `url` and a `default` boolean.
