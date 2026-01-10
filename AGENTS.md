@@ -1,38 +1,57 @@
 # AGENTS.md
 
-## Project layout
+This document defines the guidelines and rules for contributing to the `uv-class` project.
+It is intended for both human developers and AI agents.
 
+## Shared Guidelines (Humans & Agents)
+
+### Project Layout
 - The site uses Hugo with the `hugo-book` theme (see `hugo.toml`).
-- Theme docs: https://hugo-book-demo.netlify.app/docs
-- Theme installation: `/themes/hugo-book` (git submodule, do not change).
-- The book section is configured with `BookSection = "books"`.
-- Legacy content lives in top-level `chapter-*.md` files. Do not update those unless asked.
-- New or updated content goes under `content/books/uv-class/`, with each chapter as a section folder containing `_index.md`.
+- Theme docs: [hugo-book demo](https://hugo-book-demo.netlify.app/docs)
+- Theme installation: `/themes/hugo-book` is a **git submodule**. Do not modify it.
+- Book content: Located under `content/books/uv-class/`. Each chapter is a directory with an `_index.md`.
+- Legacy content: Top-level `chapter-*.md` files are legacy. Do not update them unless specifically requested.
+- Example projects: Located in `/examples/`. Use these for code snippets and exercises.
 
-## Content conventions
+### Content Conventions
+- **Front Matter**: Every chapter (`_index.md`) must have `title`, `weight`, `date`, and a concise `description`.
+- **Chapter Structure**:
+    - Start with a `{{% details title="**Summary**" open=true %}}` block.
+    - Use `## Topics` for a high-level overview of the chapter.
+    - Follow the Diátaxis framework (Tutorials, How-to, Reference, Explanation).
+    - End with an `## Exercises` section.
+- **Exercises**: Use Bloom's Taxonomy to categorize exercises (Reproduction, Application, Transfer).
+- **Shortcodes**: Prefer existing Hugo Book shortcodes:
+    - `hint`: `{{< hint info >}}...{{< /hint >}}` (info, warning, danger).
+    - `details`: `{{% details title="..." %}}...{{% /details %}}` (collapsible section).
+    - `steps`: `{{< steps >}}...{{< /steps >}}` (numbered procedures).
+    - `tabs`: `{{< tabs >}}{{< tab "Name" >}}...{{< /tab >}}{{< /tabs >}}` (switchable panels).
+    - `mermaid`: `{{< mermaid >}}...{{< /mermaid >}}` (diagrams).
+    - `button`: `{{< button href="..." >}}...{{< /button >}}` (CTA).
+    - `columns`: `{{< columns >}}...{{< /columns >}}` (layout).
 
-- Use front matter fields like `title`, `weight`, `date`, and `description` as in existing chapters.
-- Prefer Hugo Book shortcodes already used in the content (for example, `{{% details %}}`).
+### Validation
+- Before submitting, always run `hugo -D -E -F`.
+- The site must build without any errors or warnings.
 
-## Validation
+---
 
-- Ensure `hugo -D -E -F` runs without errors or warnings.
+## Agent-Specific Rules
 
-## Addendum: hugo-book shortcodes (useful for technical docs)
+This section contains rules and technical tips specifically for AI agents (like GitHub Copilot, Junie, etc.).
 
-- `button`: styled link button for strong calls-to-action like "Start here" or "Download".
-  Example: `{{<button href="/books/uv-class/">}}Start reading{{</button>}}`
-- `columns`: arrange short, parallel content in 2–3 columns for comparisons or short lists.
-  Example: `{{< columns >}}- Column 1\n- Column 2{{< /columns >}}`
-- `details`: collapsible section for summaries or optional deep dives (already used in chapters).
-  Example: `{{% details title="Summary" open=true %}}...{{% /details %}}`
-- `hints`: callout blocks for notes, tips, warnings, and cautions.
-  Example: `{{< hint info >}}Remember to run `uv sync`.{{< /hint >}}`
-- `steps`: numbered step list for procedures and lab instructions.
-  Example: `{{< steps >}}1. Install uv\n2. Run `uv init`{{< /steps >}}`
-- `tabs`: switchable panels for OS- or tool-specific instructions.
-  Example: `{{< tabs >}}{{< tab "macOS" >}}...{{< /tab >}}{{< tab "Windows" >}}...{{< /tab >}}{{< /tabs >}}`
-- `mermaid`: diagrams for workflows or architecture.
-  Example: `{{< mermaid >}}flowchart TD\n  A-->B{{< /mermaid >}}`
-- `katex`: math typesetting (only if needed for formulas).
-  Example: `{{< katex >}}\pi(x){{< /katex >}}`
+### Interacting with `uv`
+- **Help Output**: `uv` uses a pager (like `less`) by default when run in a terminal.
+To read the full help output in a non-interactive session, you **must** pipe it to `cat`:
+  ```bash
+  uv help <command> | cat
+  # or
+  uv <command> --help | cat
+  ```
+- **Lockfiles**: Always ensure that `uv.lock` is updated and committed if you change dependencies in `pyproject.toml`.
+- **Python Discovery**: `uv` follows a discovery hierarchy. Check `.python-version` and `pyproject.toml` to understand the project's requirements.
+
+### Content Generation
+- **Consistency**: Match the tone and style of existing chapters.
+- **References**: When referencing example projects, ensure the paths are correct (e.g., `examples/berlin-weather`).
+- **Shortcode Escaping**: Be careful with Hugo shortcode syntax in markdown blocks; ensure they are rendered correctly or escaped if they are meant to be shown as code.

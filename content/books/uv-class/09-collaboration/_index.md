@@ -1,18 +1,10 @@
 ---
 title: "Project hygiene and collaboration"
-weight: 570
-date: 2025-12-22T00:00:00Z
+weight: 90
+date: 2026-01-10T00:00:00Z
 description: |
   Project hygiene and collaboration
 
----
-
----
-title: "Project hygiene and collaboration"
-weight: 570
-date: 2025-12-22T00:00:00Z
-description: |
-  A guide to project structure, documentation, .gitignore best practices, and collaborative standards including AGENTS.md.
 ---
 
 {{% details title="**Summary**" open=true %}}

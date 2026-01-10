@@ -1,6 +1,6 @@
 ---
 title: "Using uv to extend Python with C-code"
-weight: 900
+weight: 100
 date: 2026-01-06T00:00:00Z
 description: |
   A walkthrough of a `uv` usage, here to extend Python with two C functions.
