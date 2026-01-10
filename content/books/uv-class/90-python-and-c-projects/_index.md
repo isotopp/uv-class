@@ -461,7 +461,7 @@ When we run `uv run something`, we run it directly from the source directory.
 The include path that Python uses is expanded, so that modules in `src` can be found and used.
 This is called an "editable install".
 
-```python
+```
 kk:helloext kris$ uv run python
 Python 3.12.12 (main, Dec 17 2025, 21:07:08) [Clang 21.1.4 ] on darwin
 Type "help", "copyright", "credits" or "license" for more information.
@@ -503,6 +503,10 @@ but also provides hooks to load `.venv/lib/python<versio>/site-packages/helloext
 If you check, you will find code that looks similar to this:
 
 ```python
+import sys
+
+def ScikitBuildRedirectingFinder(): ...
+
 def install(
     known_source_files: dict[str, str],
     known_wheel_files: dict[str, str],

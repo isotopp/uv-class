@@ -7,56 +7,210 @@ description: |
 
 ---
 
+---
+title: "Project hygiene and collaboration"
+weight: 570
+date: 2025-12-22T00:00:00Z
+description: |
+  A guide to project structure, documentation, .gitignore best practices, and collaborative standards including AGENTS.md.
+---
+
+{{% details title="**Summary**" open=true %}}
+**Project Structure:** A consistent layout using `src`, `tests`, and `docs` ensures that your project is legible to both humans and machines.
+
+**`.gitignore`:** Proper ignore rules keep your repository clean of derived artifacts like `.venv` and `__pycache__` while ensuring critical files like `uv.lock` are tracked.
+
+**Documentation Strategy:** Effective documentation uses the Diátaxis framework to separate intent (tutorials, how-to, reference, explanation) and Bloom's taxonomy to calibrate the cognitive demand of tasks.
+
+**Collaborative Interfaces:** `README.md` acts as the primary user interface for humans, while `AGENTS.md` provides clear boundaries and instructions for automated tools and AI agents.
+{{% /details %}}
 
 This chapter focuses on maintainability.
 It explains structure, documentation, automation boundaries, and collaboration norms.
 The goal is to make projects legible to other humans and to machines.
 
-## Topics
+# Project structure
 
-- Project structure
-  - Source layout
-  - Tests
-- `.gitignore`
-  - Minimal ignores
-  - What not to ignore
-- Documentation
-    - How we learn
-      - Recall and spaced retrieval drive durable learning
-      - Explanations are still necessary to build mental models and reduce blind trial-and-error.
-      - Reference is necessary to prevent folklore and drift.
-    - What is [Diátaxis](https://diataxis.fr/)?
-      - A framework for organizing docs by reader intent, preventing mixing fundamentally different doc modes.
-    - Axes (Practical - Theoretical; Now - Future/Long Term),
-    - Quadrants (Tutorials, How-To-Guides, References, Explanations)
-      - Tutorials: guided learning, safe path, minimal branching
-      - How-to guides: goal-driven procedures for known problems.
-      - Reference: complete and exact, optimized for lookup.
-      - Explanation: concepts, rationale, tradeoffs, context.
-  - Bloom Categories: a taxonomy of cognitive operations, useful for designing tasks and assessments 
-    - Remember - Understand (dt. "Reproduktion")
-    - Apply (dt. "Anwendung")
-    - Analyze - Evaluate - Create (dt. "Transfer")
-  - Diátaxis chooses the document mode by reader intent, Bloom chooses the cognitive demand of the tasks you include
-    - Tutorials: emphasize Remember - Understand - Apply with a tight scaffold.
-    - How-to guides: emphasize Apply, sometimes Analyze when debugging or choosing options.
-    - Reference: primarily Remember, sometimes Understand via definitions and constraints.
-    - Explanation: emphasize Understand - Analyze - Evaluate, occasionally Create via design patterns.
-    - "Use Diátaxis to decide what the page is; Use Bloom to decide what the reader is asked to do on that page"
-- `README.md` as a user-interface, for large projects as a quick-start and pointer to the full docs. Sections:
-  - What it is
-  - Who it is for
-  - Install
-  - Quick start (minimal, runnable)
-  - Common tasks (links to how-to guides)
-  - Configuration (link to reference)
-  - Concepts (link to explanation)
-  - Support (link to github, troubleshooting, FAQ)
-  - Versioning and compatibility  
-  - What contributors need (link to `AGENTS.md`)
-- `AGENTS.md` as an interface to contributors (human, and agents)
-  - Automation policies (What may agents do unassisted, what must never be done automatically, data handling rules,
-instrumentation and other guidelines)
-  - Tooling boundaries (allowed toolchain, test policies, OS targets, formatting and linting sources of truth), dependency policy
-  - Naming and consistency rules (Public API naming, file and module naming, doc style rules, error message logging conventions, backwards compat policy)
-  - Other rules (Decision records location and format, Definition of done checklist, Standard PR template pointers, Test categories and how to run each.)
+A well-structured Python project follows established conventions to make it predictable for developers and automated tools.
+
+### The `src` Layout
+As discussed in previous chapters, `uv init --package` defaults to a `src` layout.
+This means your actual package code lives inside a `src/` directory.
+
+- **`src/`**: Contains the package directory (e.g., `src/berlin_weather/`). This prevents accidental imports of your local code when you are in the project root, forcing you to test the code as it will be installed.
+- **`tests/`**: Located at the top level, not inside `src/`. This directory contains your `pytest` files. Keeping tests separate from source code ensures that tests aren't accidentally packaged and shipped to users.
+- **`docs/`**: Contains the project documentation (often using tools like MkDocs or Sphinx).
+
+### Project Control Files
+At the top level of every `uv` project, you will find several critical files:
+
+- **`pyproject.toml`**: The authoritative definition of your project, its metadata, and its dependencies.
+- **`uv.lock`**: The resolved, deterministic state of your environment.
+- **`.python-version`**: The version of Python that `uv` should use for this project.
+- **`README.md`**: The entry point for humans.
+- **`.gitignore`**: Instructions for your version control system on what to ignore.
+
+# `.gitignore`
+
+The `.gitignore` file tells Git which files and directories should not be tracked.
+In a Python project, we want to avoid committing derived artifacts (files that can be regenerated)
+and environment-specific data.
+
+### What to ignore
+- **`.venv/`**: Never commit your virtual environment. It is a derived artifact that `uv sync` can recreate instantly. It is also platform-specific and contains absolute paths.
+- **`__pycache__/`**: These are compiled Python bytecode files (`.pyc`). They are generated on the fly and are specific to the Python version and machine.
+- **`dist/` and `build/`**: These contain the artifacts generated by `uv build`. They should be generated by CI/CD, not committed to Git.
+- **`.env`**: This often contains secrets or local configuration.
+
+### What NOT to ignore
+- **`uv.lock`**: **Always commit your lockfile.** This is the single most important file for ensuring
+  that everyone on your team is using the exact same versions of all dependencies.
+
+### `.gitignore` Syntax Basics
+A `.gitignore` file uses simple globbing patterns:
+-
+- `*`: Matches any number of characters (except `/`).
+- `**/`: Matches any number of directories.
+- `/`: At the start, it anchors the pattern to the current directory.
+- `!`: Negates a pattern (i.e., "do not ignore this file").
+- `#`: Starts a comment.
+
+### A Good Starting `.gitignore`
+
+Here is a comprehensive starting point for your `.gitignore` file. It covers Python-specific files, common IDEs, and typical backup files.
+
+```gitignore
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- uv & Environments ---
+# Never commit the virtual environment or secrets
+.venv/
+.env
+
+# --- PyCharm ---
+.idea/
+
+# --- VS Code ---
+.vscode/
+# Note: You might want to commit .vscode/extensions.json or launch.json 
+# if you want to share workspace settings.
+
+# --- Backups and OS stuff ---
+*.bak
+*~
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- My Project Specifics ---
+# Add your own project-specific ignores here
+```
+
+> [!IMPORTANT]
+> **Do not ignore `uv.lock`.** As discussed, it must be committed to ensure reproducibility across all environments.
+
+# Documentation
+
+Documentation is not just about writing; it is about facilitating learning.
+
+### How we learn: Recall and Spaced Retrieval
+
+Humans are exposed to a lot of information.
+They are very good at not remembering things to keep their memory clean and efficient.
+They are also very good at detecting patterns, and at marking things as recurrent, and hence worth remembering.
+And that is what triggers learning in humans:
+
+Durable learning happens through **recall**.
+This is why the exercises at the end of each chapter in this book are crucial.
+Instead of just reading, you are forced to retrieve information from memory, which strengthens neural paths.
+
+- **Recall**: Actively trying to remember something.
+- **Spaced Retrieval**: Recalling information at increasing intervals.
+- **Explanations**: Build mental models and reduce "blind trial-and-error."
+- **Reference**: Prevents "folklore" (knowledge passed by word of mouth that may be wrong or outdated).
+
+### The Diátaxis Framework
+[Diátaxis](https://diataxis.fr/) is a framework that organizes documentation by **reader intent**.
+It divides documentation into four quadrants:
+
+1.  **Tutorials (Learning-oriented)**: A guided path for a beginner to achieve a small result. Minimal branching, safe environment.
+2.  **How-to Guides (Goal-oriented)**: Directions for a specific task. "How do I add a private registry?" Assumes some knowledge.
+3.  **Reference (Information-oriented)**: Technical description of the machinery. Complete, exact, and neutral. Optimized for lookup.
+4.  **Explanation (Understanding-oriented)**: Discussions that clarify a topic. Why does `uv` use a global cache? What are the trade-offs of the `src` layout?
+
+### Bloom's Taxonomy
+While Diátaxis helps you decide **what** the page is, Bloom's Taxonomy helps you decide what the **reader is asked to do**.
+
+- **Remember - Understand (Reproduction)**: Can the reader state facts and explain basic concepts?
+- **Apply (Application)**: Can the reader use the information in a new situation?
+- **Analyze - Evaluate - Create (Transfer)**: Can the reader draw connections, justify a stand, or produce new work?
+
+**Best Practice:**
+- Use **Diátaxis** to decide the *structure* of your docs.
+- Use **Bloom** to ensure the *difficulty* of your exercises matches the intended learning stage.
+
+# Writing a good `README.md`
+
+Your `README.md` is the **User Interface** of your project.
+For large projects, it should not contain everything,
+but rather act as a quick-start guide and a map to the full documentation.
+
+Every good README should include:
+- 
+- **What it is**: A clear, one-sentence description.
+- **Who it is for**: The target audience.
+- **Installation**: A simple `uv tool install` or `uv sync` command.
+- **Quick Start**: The minimal amount of code or commands to see it working.
+- **Common Tasks**: Links to How-to guides for things like running tests or building.
+- **Support**: Where to go for help (GitHub Issues, Discord, etc.).
+- **AGENTS.md**: A link to your agent/contributor policy.
+
+# `AGENTS.md`
+
+In the age of AI-assisted development, a `README.md` is no longer enough.
+An `AGENTS.md` file serves as an interface for both humans and AI agents (like GitHub Copilot or Junie)
+who wish to contribute to the project.
+
+It defines the "Rules of Engagement" for the project:
+
+### Automation Policies
+- **What agents may do unassisted**: (e.g., "Refactor internal private methods," "Update documentation typos").
+- **What must never be done automatically**: (e.g., "Change public API signatures," "Modify security-sensitive code").
+
+### Tooling Boundaries
+- **Allowed Toolchain**: "We only use `uv`, never `pip`."
+- **OS Targets**: "We support Linux and macOS; Windows support is community-best-effort."
+- **Formatting**: "Ruff is the absolute source of truth for style."
+
+### Consistency Rules
+- **Naming**: "Public classes must use CamelCase."
+- **Error Messages**: "Use the `logging` module; never use `print` for errors."
+
+### Definition of Done
+A checklist of what a PR needs before it can be considered complete:
+- Tests pass.
+- Documentation updated (following Diátaxis).
+- `uv.lock` is updated.
+- No new linting warnings.

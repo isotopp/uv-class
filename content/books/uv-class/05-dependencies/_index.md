@@ -439,3 +439,9 @@ But in a CI/CD pipeline,
 - **Reproduction:** Explain the difference between `clone` and `copy` link modes. Which one is default on macOS?
 - **Reproduction:** What is the benefit of using `--compile-bytecode` during installation?
 - **Application:** You are working on a machine with very limited disk space and multiple `uv` projects. Which `--link-mode` would you choose to minimize disk usage, and what is the requirement for it to work?
+
+
+
+[//]: # (# TODO: project.dependencies, project.optional-dependencies (--extras), dependency-groups, tool.uv.sources )
+[//]: # (# TODO: Migration, "uv add -r requirements.txt")
+[//]: # (# TODO: Platform specific dependencies: `uv add "jax; sys_platform == 'linux'"`, `uv add "numpy; python_version >= '3.11'"`; https://peps.python.org/pep-0508/#environment-markers)
