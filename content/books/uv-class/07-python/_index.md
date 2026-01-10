@@ -155,9 +155,9 @@ for example `brew uninstall python#3.8` to uninstall a Python version 3.8 manage
 Show the path to the interpreter that `uv` would use for a given requirement.
 ```
 $ pwd
-~/Source/uv-class/berlin-weather
+~/Source/uv-class/examples/berlin-weather
 $ uv python find
-~/Source/uv-class/berlin-weather/.venv/bin/python3
+~/Source/uv-class/examples/berlin-weather/.venv/bin/python3
 $ uv python find 3.8
 error: No interpreter found for Python 3.8 in virtual environments, managed installations, or search path
 $ uv python find 3.11

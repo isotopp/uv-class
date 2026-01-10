@@ -362,10 +362,10 @@ $ uv sync --reinstall --all-groups
 Using CPython 3.12.12
 Creating virtual environment at: .venv
 Resolved 8 packages in 6ms
-      Built helloext @ file:///Users/kris/Source/helloext
+      Built helloext @ file:///Users/kris/Source/uv-class/examples/helloext
 Prepared 7 packages in 1.33s
 Installed 7 packages in 12ms
- + helloext==0.2.0 (from file:///Users/kris/Source/helloext)
+ + helloext==0.2.0 (from file:///Users/kris/Source/uv-class/examples/helloext)
  + iniconfig==2.3.0
  + packaging==25.0
  + pluggy==1.6.0
@@ -415,7 +415,7 @@ We then can run out tests as usual, and they will now succeed, using our C code 
 $ uv run pytest
 ============================ test session starts =============================
 platform darwin -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0
-rootdir: /Users/kris/Source/helloext
+rootdir: /Users/kris/Source/uv-class/examples/helloext
 configfile: pyproject.toml
 collected 2 items
 
@@ -472,8 +472,8 @@ Type "help", "copyright", "credits" or "license" for more information.
  '/Users/kris/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python312.zip',
  '/Users/kris/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12',
  '/Users/kris/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/lib-dynload',
- '/Users/kris/Source/helloext/.venv/lib/python3.12/site-packages',
- '/Users/kris/Source/helloext/src']
+ '/Users/kris/Source/uv-class/examples/helloext/.venv/lib/python3.12/site-packages',
+ '/Users/kris/Source/uv-class/examples/helloext/src']
 ```
 
 This works with pure python modules, because this will make `import helloext` search `src/helloext`,
@@ -545,9 +545,9 @@ def install(
     )
 
 
-install({'helloext': '/Users/kris/Source/helloext/src/helloext/__init__.py',
-         'helloext._hello': '/Users/kris/Source/helloext/src/helloext/_hello.c'},
-        {'helloext._hello': 'helloext/_hello.so'}, None, False, True, [], [], '')
+install({'helloext': '/Users/kris/Source/uv-class/examples/helloext/src/helloext/__init__.py',
+'helloext._hello': '/Users/kris/Source/uv-class/examples/helloext/src/helloext/_hello.c'},
+{'helloext._hello': 'helloext/_hello.so'}, None, False, True, [], [], '')
 ```
 
 This will try to wire things together even for editable installs.
@@ -571,7 +571,7 @@ Type "help", "copyright", "credits" or "license" for more information.
  '/Users/kris/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python312.zip',
  '/Users/kris/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12',
  '/Users/kris/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/lib-dynload',
- '/Users/kris/Source/helloext/.venv/lib/python3.12/site-packages']
+ '/Users/kris/Source/uv-class/examples/helloext/.venv/lib/python3.12/site-packages']
 ```
 
 So we can see that SciKit goes to considerable lengths to set up the import path and environment for us,

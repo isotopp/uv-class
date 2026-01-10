@@ -52,7 +52,7 @@ and only then in the rest of the system path.
 ``` 
 $ uv run bash
 bash-5.3$ echo $PATH
-~/.local/bin:~/Source/uv-class/whoami/.venv/bin:...
+~/.local/bin:~/Source/uv-class/examples/whoami/.venv/bin:...
 ```
 
 In our `berlin-weather` project, we defined an entrypoint in `pyproject.toml`:
@@ -303,7 +303,7 @@ Do make it do so, provide the option `--script`.
 
 ```python
 #!/usr/bin/env python3
-# Script at /whoami/whoami.py in this repository, https://github.com/isotopp/uv-class
+# Script at /examples/whoami/whoami.py in this repository, https://github.com/isotopp/uv-class
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
@@ -335,7 +335,7 @@ Running this script without `uv` or without the `/// script` header results in a
 ```
 $ uv run whoami-no-dep.py
 Traceback (most recent call last):
-  File "~/Source/uv-class/whoami/whoami-no-dep.py", line 6, in <module>
+  File "~/Source/uv-class/examples/whoami/whoami-no-dep.py", line 6, in <module>
     import httpx
 ModuleNotFoundError: No module named 'httpx'
 ```
@@ -348,8 +348,8 @@ $ uv run --verbose whoami.py
 DEBUG uv 0.9.21 (0dc9556ad 2025-12-30)
 DEBUG Acquired shared lock for `~/.cache/uv`
 DEBUG Reading inline script metadata from `whoami.py`
-DEBUG Acquired exclusive lock for `~/Source/uv-class/whoami/whoami.py`
-DEBUG No Python version file found in ancestors of working directory: ~/Source/uv-class/whoami
+DEBUG Acquired exclusive lock for `~/Source/uv-class/examples/whoami/whoami.py`
+DEBUG No Python version file found in ancestors of working directory: ~/Source/uv-class/examples/whoami
 DEBUG Using Python request Python >=3.11 from `requires-python` metadata
 DEBUG Checking for Python environment at: `~/.cache/uv/environments-v2/whoami-0492c73d0afa970a`
 DEBUG The script environment's Python version satisfies the request: `Python >=3.11`
@@ -377,12 +377,12 @@ but is transient in the sense that `uv` can decide to trash and rebuilt it with 
 We can even decide to run this script as a URL:
 
 ```
-$ uv run -v 'https://raw.githubusercontent.com/isotopp/uv-class/refs/heads/main/whoami/whoami.py'
+$ uv run -v 'https://raw.githubusercontent.com/isotopp/uv-class/refs/heads/main/examples/whoami/whoami.py'
 DEBUG uv 0.9.21 (0dc9556ad 2025-12-30)
 DEBUG Acquired shared lock for `/Users/kris/.cache/uv`
 DEBUG Reading inline script metadata from remote URL
-DEBUG Acquired exclusive lock for `https://raw.githubusercontent.com/isotopp/uv-class/refs/heads/main/whoami/whoami.py`
-DEBUG No Python version file found in ancestors of working directory: /Users/kris/Source/uv-class/whoami
+DEBUG Acquired exclusive lock for `https://raw.githubusercontent.com/isotopp/uv-class/refs/heads/main/examples/whoami/whoami.py`
+DEBUG No Python version file found in ancestors of working directory: /Users/kris/Source/uv-class/examples/whoami
 DEBUG Using Python request Python >=3.11 from `requires-python` metadata
 DEBUG Checking for Python environment at: `/Users/kris/.cache/uv/environments-v2/ed6cf9cb4d875881`
 DEBUG The script environment's Python version satisfies the request: `Python >=3.11`
