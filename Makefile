@@ -5,7 +5,7 @@ BOOK_BUILD_DIR := $(BUILD_DIR)/uv-class
 BOOK_MD := $(BUILD_DIR)/uv-class.md
 BOOK_FILES := $(BOOK_DIR)/_index.md $(sort $(wildcard $(BOOK_DIR)/*/_index.md))
 PANDOC := pandoc
-PANDOC_FLAGS := --standalone --toc --resource-path="$(BUILD_DIR)" --metadata title="Using uv to manage Python projects"
+PANDOC_FLAGS := --standalone --toc --resource-path="$(BUILD_DIR)" --metadata title="Using uv to manage Python projects" --metadata author="Kristian Köhntopp"
 
 .PHONY: all clean
 

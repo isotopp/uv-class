@@ -43,6 +43,40 @@ hugo server -D
 ```
 The site will be available at `http://localhost:1313/`.
 
+### Export the Book Without Hugo
+If you only want distributable book files and do not want to set up Hugo, you can build them with Pandoc instead.
+
+Requirements:
+- `pandoc`
+- `zip`
+- `make`
+
+Build all export formats:
+
+```bash
+make all
+```
+
+This writes the generated files to `out/`:
+- `out/uv-class.epub`
+- `out/uv-class.docx`
+- `out/uv-class.odt`
+- `out/uv-class.html`
+
+Remove generated files again:
+
+```bash
+make clean
+```
+
+To create a GitHub release with those artifacts attached, use:
+
+```bash
+scripts/release-artifacts.sh release-YYYY-MM-DD
+```
+
+The script rebuilds the artifacts, creates a zip file, and publishes a GitHub release via `gh`.
+
 ### Explore the Examples
 Navigate to any example project in `/examples` and use `uv` to run it:
 
