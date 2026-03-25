@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  HUGO_VERSION: 0.156.0
+
 permissions:
   contents: read
   pages: write
@@ -29,7 +33,14 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Install Hugo
-        run: sudo apt-get update && sudo apt-get install -y hugo
+        run: |
+          set -eu
+          asset="hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          url="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${asset}"
+          curl -L "$url" -o /tmp/hugo.tar.gz
+          tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
+          sudo install /tmp/hugo /usr/local/bin/hugo
+          hugo version
 
       - name: Build
         run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
